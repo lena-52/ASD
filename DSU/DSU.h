@@ -17,7 +17,6 @@ public:
 DSU::DSU(size_t size) : _size(size) {
     _rank = new int[size];
     _parent = new int[size];
-
     for (size_t i = 0; i < _size; i++) {
         _parent[i] = i;
         _rank[i] = 0;
