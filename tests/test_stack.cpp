@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include "stack.h"
-// Тесты для конструкторов
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ Д™Г®Г­Е„Е€Д‘ГіД™Е€Г®Д‘Г®Гў
 TEST(StackTest, DefaultConstructor) {
     Stack<int> stack;
     EXPECT_TRUE(stack.is_empty());
@@ -24,7 +24,7 @@ TEST(StackTest, CopyConstructor) {
     EXPECT_EQ(original.top(), copy.top());
 }
 
-// Тесты для оператора присваивания
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ Г®ДЏДєД‘Е•Е€Г®Д‘Е• ДЏД‘ДЌЕ„ГўЕ•ДЌГўЕ•Г­ДЌЛ™
 TEST(StackTest, AssignmentOperator) {
     Stack<int> stack1;
     stack1.push(10);
@@ -40,13 +40,18 @@ TEST(StackTest, AssignmentOperator) {
 TEST(StackTest, SelfAssignment) {
     Stack<int> stack;
     stack.push(5);
+    stack = stack; 
     stack = stack; // self-assignment
+
 
     EXPECT_EQ(stack.size(), 1);
     EXPECT_EQ(stack.top(), 5);
 }
 
-// Тесты для push и top
+
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ push ДЌ top
+
 TEST(StackTest, PushAndTop) {
     Stack<int> stack;
     stack.push(42);
@@ -66,7 +71,10 @@ TEST(StackTest, PushMultiple) {
     EXPECT_EQ(stack.size(), 3);
 }
 
-// Тесты для pop
+
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ pop
+
 TEST(StackTest, PopOperation) {
     Stack<int> stack;
     stack.push(10);
@@ -78,7 +86,9 @@ TEST(StackTest, PopOperation) {
     EXPECT_EQ(stack.size(), 1);
 }
 
-// Тесты для is_empty и is_full
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ is_empty ДЌ is_full
+
 TEST(StackTest, IsEmpty) {
     Stack<int> stack;
     EXPECT_TRUE(stack.is_empty());
@@ -99,7 +109,10 @@ TEST(StackTest, IsFull) {
     EXPECT_TRUE(stack.is_full());
 }
 
-// Тесты для size
+
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ size
+
 TEST(StackTest, Size) {
     Stack<int> stack;
     EXPECT_EQ(stack.size(), 0);
@@ -114,7 +127,10 @@ TEST(StackTest, Size) {
     EXPECT_EQ(stack.size(), 1);
 }
 
-// Тесты для clear
+
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ clear
+
 TEST(StackTest, Clear) {
     Stack<int> stack;
     stack.push(1);
@@ -125,7 +141,10 @@ TEST(StackTest, Clear) {
     EXPECT_EQ(stack.size(), 0);
 }
 
-// Тесты для исключений
+
+
+// Е‡ДєЕ„Е€Е± Г¤Г«Л™ ДЌЕ„Д™Г«ЕЈГ·ДєГ­ДЌГ©
+
 TEST(StackTest, PopEmptyThrows) {
     Stack<int> stack;
     ASSERT_THROW(stack.pop(), std::logic_error);
