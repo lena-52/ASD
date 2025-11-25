@@ -31,3 +31,22 @@ bool check_brackets(const std::string& str) {
     // в конце алгоритма, если стек не пуст, то есть незакрытые скобки
     return stack.is_empty();
 }
+
+bool check_cycle(Node<int>* head) {
+    if (head == nullptr) {
+        return false;
+    }
+    Node<int>* turtle = head;  
+    Node<int>* rabbit = head;  
+
+    while (rabbit != nullptr && rabbit->next != nullptr) {
+        turtle = turtle->next;     
+        rabbit = rabbit->next->next;
+
+        if (turtle == rabbit) {
+            return true;  // цикл нашелся
+        }
+    }
+
+    return false;  // цикл не нашелся
+}

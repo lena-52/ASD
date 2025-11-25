@@ -12,7 +12,6 @@ class List {
     Node<T>* _head; //указатель на верх массива
     int _count;
     Node<T>* _tail;
-
 public:
     class Iterator {
         Node<T>* current;
