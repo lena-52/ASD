@@ -1,355 +1,317 @@
-#pragma once
 #include <iostream>
-#define STEP_OF_CAPACITY 15
-int calc_capacity(int size) {
-	return (size + STEP_OF_CAPACITY) / STEP_OF_CAPACITY * STEP_OF_CAPACITY;
-}
-template <class T> class TVector;
 
 template <class T>
-std::ostream& operator<<(std::ostream& out, const TVector<T>& vec);
-
-template <class T> class TVector;
+struct Node {
+    T value;
+    Node<T>* next;
+    Node<T>* prev; 
+    Node(T value, Node<T>* next = nullptr, Node<T>* prev = nullptr): value(value), next(next), prev(prev) {
+    }
+};
 
 template <class T>
-std::istream& operator>>(std::istream& in, TVector<T>& vec);
+class List {
+    Node<T>* _head;
+    int _count;
+    Node<T>* _tail;
 
-template <class T>
-class TVector {
-protected:
-	T* _data;
-	int _size;
-	int _capacity;
 public:
-	class Iterator {
-	private:
-		T* current;
-	public:
-		Iterator() : current(nullptr) {}
-		Iterator(T* pos) : current(pos) {}
-		Iterator(const Iterator& other) : current(other.current) {}
+    class Iterator {
+        Node<T>* current;
+    public:
+        Iterator() : current(_head) {}
+        Iterator(Node<T>* pos = nullptr) : current(pos) {}
+        Iterator(const Iterator& other) : current(other.current) {}
 
-		Iterator& operator=(const Iterator& other) {
-			if (this != &other) {
-				current = other.current;
-			}
-			return *this;
-		}
+        Iterator& operator=(const Iterator& other) {
+            if (this != &other) {
+                current = other.current;
+            }
+            return *this;
+        }
 
-		T& operator*() {
-			if (current == nullptr) {
-				throw std::logic_error("null iterator");
-			}
-			return *current;
-		}
+        T& operator*() {
+            if (current == nullptr) {
+                throw std::logic_error("null iterator");
+            }
+            return current->value;
+        }
 
-		bool operator==(const Iterator& other) const {
-			return current == other.current;
-		}
+        bool operator==(const Iterator& other) const {
+            return current == other.current;
+        }
 
-		bool operator!=(const Iterator& other) const {
-			return current != other.current;
-		}
+        bool operator!=(const Iterator& other) {
+            return current != other.current;
+        }
 
-		Iterator& operator++() {
-			if (current != nullptr) {
-				current++;
-			}
-			return *this;
-		}
+        Iterator operator++(int) { // x++
+            Iterator temp = *this;
+            if (current != nullptr) {
+                current = current->next;
+            }
+            return temp;
+        }
 
-		Iterator operator++(int) {
-			Iterator tmp = *this;
-			++(*this);
-			return tmp;
-		}
+        Iterator& operator++() { // ++x
+            if (current != nullptr) {
+                current = current->next;
+            }
+            return *this;
+        }
 
-		Iterator& operator--() {
-			if (current != nullptr) {
-				current--;
-			}
-			return *this;
-		}
+        Iterator operator--(int) { // x--
+            Iterator temp = *this;
+            if (current != nullptr) {
+                current = current->prev;
+            }
+            return temp;
+        }
 
-		Iterator operator--(int) {
-			Iterator tmp = *this;
-			--(*this);
-			return tmp;
-		}
-	};
-	typedef Iterator iterator;
-	TVector();
-	TVector(const TVector& other);
-	TVector(std::initializer_list<T> data);
-	TVector(int size);
-	TVector(T* data, int size);
-	~TVector();
-	inline T* data() const noexcept;
-	inline int size() const noexcept;
-	inline int capacity() const noexcept;
-	inline T& operator[](int indx) noexcept;
-	inline const T& operator[](int indx) const noexcept;
-	friend std::ostream& operator<< <T>(std::ostream& out, const TVector<T>& vec);
-	friend std::istream& operator>> <T>(std::istream& in, TVector<T>& vec);
-	void clear();
-	TVector& operator=(const TVector& other) noexcept;
-	int find(T Val) const;
-	bool full() const noexcept;
-	void reset_memory();
-	void push_front(T number);
-	void push_back(T number);
-	void insert(int pos, T number);
-	void erase(int pos, int count = 1);
-	T& front() noexcept;
-	T& back() noexcept;
-	const T& front() const noexcept;
-	const T& back() const noexcept;
-	T pop_back();
-	T pop_front();
+        Iterator& operator--() { // --x
+            if (current != nullptr) {
+                current = current->prev;
+            }
+            return *this;
+        }
 
-	iterator begin() {
-		return iterator(_data);
-	}
+    };
 
-	iterator end() {
-		return iterator(_data + _size);
-	}
+    Iterator begin() {
+        return Iterator(_head);
+    }
+
+    Iterator end() {
+        return Iterator(nullptr);
+    }
+
+    List();
+    List(const List& other);
+    List& operator=(const List& other);
+    ~List();
+
+    void push_front(const T& val) noexcept;
+    void push_back(const T& val) noexcept;
+    void insert(int pos, const T& val);
+    void insert(Node<T>* node, const T& val);
+    void pop_front();
+    void pop_back();
+    void erase(Node<T>* node);
+    void clear();
+
+    bool is_empty() const;
+    int size() const;
+    Node<T>* find(const T& val);
+    Node<T>* get_head() const;
+    Node<T>* get_tail() const;
+    T& front();
+    T& back();
 };
 
 template <class T>
-TVector<T>::TVector() :_data(nullptr), _size(0), _capacity(0) {}
+List<T>::List() : _head(nullptr), _count(0), _tail(nullptr) {}
 
 template <class T>
-TVector<T>::TVector(const TVector<T>& other) : _size(other._size), _capacity(calc_capacity(other._size)) {
-	_data = new T[_capacity];
-	for (int i = 0; i < _size; i++) {
-		_data[i] = other._data[i];
-	}
-};
-
-template <class T>
-TVector<T>::TVector(std::initializer_list<T> data) {
-	_size = data.size();
-	_capacity = calc_capacity(_size);
-	_data = new T[_capacity];
-	for (int i = 0; i < _size; i++) {
-		_data[i] = *(data.begin() + i);
-	}
+List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
+    Node<T>* current = other._head;
+    while (current != nullptr) {
+        push_back(current->value);
+        current = current->next;
+    }
 }
 
 template <class T>
-TVector<T>::TVector(int size) {
-	if (size >= 0) {
-		_size = size;
-		_capacity = calc_capacity(size);
-		_data = new T[_capacity];
-	}
-	else {
-		throw std::logic_error("size < 0");
-	}
+List<T>& List<T>::operator=(const List& other) {
+    if (this != &other) {
+        clear();
+        Node<T>* current = other._head;
+        while (current != nullptr) {
+            push_back(current->value);
+            current = current->next;
+        }
+    }
+    return *this;
 }
 
 template <class T>
-TVector<T>::TVector(T* data, int size) : _size(size), _capacity(calc_capacity(size)) {
-	_data = new T[_capacity];
-	for (int i = 0; i < _size; ++i) {
-		_data[i] = data[i];
-	}
+List<T>::~List() {
+    clear();
 }
 
 template <class T>
-TVector<T>::~TVector() {
-	clear();
-	_size = 0;
-	_capacity = 0;
+void List<T>::push_front(const T& val) noexcept {
+    Node<T>* node = new Node<T>(val, _head, nullptr);
+    if (_head != nullptr) {
+        _head->prev = node;
+    }
+    _head = node;
+    if (_tail == nullptr) {
+        _tail = node;
+    }
+    _count++;
 }
 
 template <class T>
-inline T* TVector<T>::data() const noexcept {
-	return _data;
+void List<T>::push_back(const T& val) noexcept {
+    Node<T>* node = new Node<T>(val, nullptr, _tail);
+    if (is_empty()) {
+        _head = node;
+        _tail = node;
+    }
+    else {
+        _tail->next = node;
+        _tail = node;
+    }
+    _count++;
 }
 
 template <class T>
-inline int TVector<T>::size() const noexcept {
-	return _size;
+void List<T>::insert(int pos, const T& val) {
+    if (pos < 0 || pos > _count) {
+        throw std::logic_error("Position out of range");
+    }
+
+    if (pos == 0) {
+        push_front(val);
+    }
+    else if (pos == _count) {
+        push_back(val);
+    }
+    else {
+        Node<T>* current = _head;
+        for (int i = 0; i < pos - 1; i++) {
+            current = current->next;
+        }
+        insert(current, val);
+    }
 }
 
 template <class T>
-inline int TVector<T>::capacity() const noexcept {
-	return _capacity;
+void List<T>::insert(Node<T>* node, const T& val) {
+    if (node == nullptr) {
+        throw std::logic_error("Node cannot be null");
+    }
+    Node<T>* new_node = new Node<T>(val, node->next, node);
+    node->next = new_node;
+    if (new_node->next != nullptr) {
+        new_node->next->prev = new_node;
+    }
+    if (_tail == node) {
+        _tail = new_node;
+    }
+    _count++;
 }
 
 template <class T>
-inline T& TVector<T>::operator[](int indx) noexcept {
-	return _data[indx];
+void List<T>::pop_front() {
+    if (is_empty()) {
+        throw std::logic_error("Cannot pop from empty list");
+    }
+    Node<T>* temp = _head;
+    _head = _head->next;
+    if (_head != nullptr) {
+        _head->prev = nullptr;
+    }
+    else {
+        _tail = nullptr;
+    }
+    delete temp;
+    _count--;
 }
 
 template <class T>
-inline const T& TVector<T>::operator[](int indx) const noexcept {
-	return _data[indx];
+void List<T>::pop_back() {
+    if (is_empty()) {
+        throw std::logic_error("Cannot pop from empty list");
+    }
+
+    if (_head == _tail) {
+        delete _head;
+        _head = nullptr;
+        _tail = nullptr;
+    }
+    else {
+        Node<T>* temp = _tail;
+        _tail = _tail->prev;
+        _tail->next = nullptr;
+        delete temp;
+    }
+    _count--;
 }
 
 template <class T>
-std::ostream& operator<<(std::ostream& out, const TVector<T>& vec) {
-	for (int i = 0; i < vec.size(); i++) {
-		out << vec[i] << " ";
-	}
-	return out;
+void List<T>::erase(Node<T>* node) {
+    if (node == nullptr || is_empty()) {
+        throw std::logic_error("Node cannot be null");
+    }
+
+    if (node == _head) {
+        pop_front();
+        return;
+    }
+
+    if (node == _tail) {
+        pop_back();
+        return;
+    }
+
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    delete node;
+    _count--;
 }
 
 template <class T>
-std::istream& operator>>(std::istream& in, TVector<T>& vec) {
-	vec.clear();
-
-	T value;
-	while (in >> value) {
-		vec.push_back(value);
-	}
-
-	in.clear();
-	return in;
+void List<T>::clear() {
+    while (!is_empty()) {
+        pop_front();
+    }
 }
 
 template <class T>
-void TVector<T>::clear() {
-	if (_data != nullptr) {
-		delete[] _data;
-		_data = nullptr;
-	}
+bool List<T>::is_empty() const {
+    return _head == nullptr;
 }
 
 template <class T>
-TVector<T>& TVector<T>::operator=(const TVector<T>& other) noexcept {
-	if (this == &other) {
-		return *this;
-	}
-	if (_data != nullptr) {
-		delete[] _data;
-	}
-	_size = other._size;
-	_capacity = other._capacity;
-	_data = new T[_capacity];
-	for (int i = 0; i < _size; i++) {
-		_data[i] = other._data[i];
-	}
-	return *this;
+int List<T>::size() const {
+    return _count;
 }
 
-template<class T>
-int TVector<T>::find(T Number) const {
-	for (int i = 0; i < _size; i++)
-	{
-		if (_data[i] == Number)
-			return i;
-	}
-	throw  std::logic_error("Number did not found");
+template <class T>
+Node<T>* List<T>::find(const T& val) {
+    Node<T>* current = _head;
+    while (current != nullptr) {
+        if (current->value == val) {
+            return current;
+        }
+        current = current->next;
+    }
+    return nullptr;
 }
 
-template<class T>
-bool TVector<T>::full() const noexcept {
-	if (_size == _capacity) {
-		return true;
-	}
-	return false;
+template <class T>
+Node<T>* List<T>::get_head() const {
+    return _head;
 }
 
-template<class T>
-void TVector<T>::reset_memory() {
-	_capacity = calc_capacity(_size);
-	T* data = new T[_capacity];
-	for (int i = 0; i < _size; i++)
-	{
-		data[i] = _data[i];
-	}
-	delete[] _data;
-	_data = data;
+template <class T>
+Node<T>* List<T>::get_tail() const {
+    return _tail;
 }
 
-template<class T>
-void TVector<T>::push_front(T number) {
-	if (full())
-	{
-		reset_memory();
-	}
-	for (int i = _size; i > 0; i--)
-		_data[i] = _data[i - 1];
-	_data[0] = number;
-	_size++;
+template <class T>
+T& List<T>::front() {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _head->value;
 }
 
-template<class T>
-void TVector<T>::push_back(T number) {
-	if (!full())
-		_data[_size] = number;
-	else {
-		reset_memory();
-		_data[_size] = number;
-	}
-	_size++;
-}
-
-template<class T>
-void TVector<T>::insert(int pos, T number) {
-	if (pos <= _size && pos >= 0) {
-		if (full()) {
-			reset_memory();
-		}
-
-		for (int i = _size; i > pos; i--)
-			_data[i] = _data[i - 1];
-		_data[pos] = number;
-		_size++;
-	}
-	else
-		throw std::logic_error("position out of range");
-}
-
-template<class T>
-void TVector<T>::erase(int pos, int count) {
-	if (pos + count > _size || pos < 0 || count <= 0) {
-		throw std::logic_error("position or count out of range");
-	}
-	for (int i = pos; i < _size - count; i++) {
-		_data[i] = _data[i + count];
-	}
-	_size -= count;
-	reset_memory();
-}
-
-template<class T>
-T& TVector<T>::front() noexcept {
-	return _data[0];
-}
-
-template<class T>
-T& TVector<T>::back() noexcept {
-	return _data[_size - 1];
-}
-
-template<class T>
-const T& TVector<T>::front() const noexcept {
-	return _data[0];
-}
-
-template<class T>
-const T& TVector<T>::back() const noexcept {
-	return _data[_size - 1];
-}
-
-template<class T>
-T TVector<T>::pop_back() {
-	T pop = _data[_size - 1];
-	_size--;
-	reset_memory();
-	return pop;
-}
-
-template<class T>
-T TVector<T>::pop_front() {
-	T pop = _data[0];
-	for (int i = 0; i < _size - 1; i++)
-		_data[i] = _data[i + 1];
-	--_size;
-	reset_memory();
-	return pop;
+template <class T>
+T& List<T>::back() {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _tail->value;
 }
