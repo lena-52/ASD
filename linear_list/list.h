@@ -88,6 +88,8 @@ public:
     Node<T>* get_tail() const;
     T& front();
     T& back();
+    const T& front() const;
+    const T& back() const;
 };
 
 template <class T>
@@ -292,6 +294,23 @@ T& List<T>::front() {
 
 template <class T>
 T& List<T>::back() {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _tail->value;
+}
+
+template <class T>
+const T& List<T>::front() const { 
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _head->value;
+}
+
+
+template <class T>
+const T& List<T>::back() const {   
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }

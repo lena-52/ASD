@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include "stack.h"
-// Ňĺńňű äë˙ ęîíńňđóęňîđîâ
+//Тесты для конструкторов
 TEST(StackTest, DefaultConstructor) {
     Stack<int> stack;
     EXPECT_TRUE(stack.is_empty());
@@ -24,7 +24,7 @@ TEST(StackTest, CopyConstructor) {
     EXPECT_EQ(original.top(), copy.top());
 }
 
-// Ňĺńňű äë˙ îďĺđŕňîđŕ ďđčńâŕčâŕíč˙
+// Тесты для оператора присваивания
 TEST(StackTest, AssignmentOperator) {
     Stack<int> stack1;
     stack1.push(10);
@@ -50,7 +50,6 @@ TEST(StackTest, SelfAssignment) {
 
 
 
-// Ňĺńňű äë˙ push č top
 
 TEST(StackTest, PushAndTop) {
     Stack<int> stack;
@@ -72,9 +71,6 @@ TEST(StackTest, PushMultiple) {
 }
 
 
-
-// Ňĺńňű äë˙ pop
-
 TEST(StackTest, PopOperation) {
     Stack<int> stack;
     stack.push(10);
@@ -85,9 +81,6 @@ TEST(StackTest, PopOperation) {
     EXPECT_EQ(stack.top(), 10);
     EXPECT_EQ(stack.size(), 1);
 }
-
-
-// Ňĺńňű äë˙ is_empty č is_full
 
 TEST(StackTest, IsEmpty) {
     Stack<int> stack;
@@ -109,10 +102,6 @@ TEST(StackTest, IsFull) {
     EXPECT_TRUE(stack.is_full());
 }
 
-
-
-// Ňĺńňű äë˙ size
-
 TEST(StackTest, Size) {
     Stack<int> stack;
     EXPECT_EQ(stack.size(), 0);
@@ -128,9 +117,6 @@ TEST(StackTest, Size) {
 }
 
 
-
-// Ňĺńňű äë˙ clear
-
 TEST(StackTest, Clear) {
     Stack<int> stack;
     stack.push(1);
@@ -141,9 +127,7 @@ TEST(StackTest, Clear) {
     EXPECT_EQ(stack.size(), 0);
 }
 
-
-
-// Ňĺńňű äë˙ čńęëţ÷ĺíčé
+// Тесты для исключений
 
 TEST(StackTest, PopEmptyThrows) {
     Stack<int> stack;
