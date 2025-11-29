@@ -1,17 +1,18 @@
 #pragma once
 #include <iostream>
+#include <stdexcept>
 
 template <class T>
 class List {
-    struct Node { //äëÿ îïèñàíèÿ 1 ýëåìåíòà
+    struct Node {
         T value;
         Node* next;
         Node(const T& value, Node* next = nullptr) : value(value), next(next) {}
     };
 
-    Node* _head; //óêàçàòåëü íà âåðõ ìàññèâà
-    size_t _size; 
+    Node* _head;
     Node* _tail;
+    size_t _size;
 
 public:
     class Iterator {
@@ -19,300 +20,170 @@ public:
     public:
         Iterator() : current(nullptr) {}
         Iterator(Node* pos) : current(pos) {}
-        Iterator(const Iterator& other) : current(other.current) {}
-
-        Iterator& operator=(const Iterator& other) {
-            if (this != &other) {
-                current = other.current;
-            }
-            return *this;
-        }
 
         T& operator*() {
-            if (current == nullptr) {
-                throw std::logic_error("null iterator");
-            }
+            if (current == nullptr) throw std::logic_error("null iterator");
             return current->value;
         }
 
-        bool operator==(const Iterator& other) const {
-            return current == other.current;
-        }
+        bool operator==(const Iterator& other) const { return current == other.current; }
+        bool operator!=(const Iterator& other) const { return current != other.current; }
 
-        bool operator!=(const Iterator& other) const {
-            return current != other.current;
-
-        }
-        Iterator operator++(int) { //x++
+        Iterator operator++(int) {
             Iterator temp = *this;
-            if (current != nullptr) {
-                current = current->next;
-            }
+            if (current != nullptr) current = current->next;
             return temp;
         }
-        Iterator& operator++() { //++x
-            if (current != nullptr) {
-                current = current->next;
-            }
+
+        Iterator& operator++() {
+            if (current != nullptr) current = current->next;
             return *this;
         }
-
-
     };
-    Iterator begin() {
-        return Iterator(_head); 
-    }
 
-    Iterator end() {
-        return Iterator(nullptr);
-    }
+  
+    List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}  // Явно инициализируем
 
-    List();
-    List(const List& other); //èäòè ïî îðèãèíàëüíîìó ìàññèâó è ñîçäàâàòü êîïèè ýëåìåíòîâ 
-    List& operator=(const List& other);
-    ~List();
-
-    void push_front(const T& val) noexcept;
-    void push_back(const T& val) noexcept;
-    void insert(int pos, const T& val); //óäîáíî ïîëüçîâàòåëþ
-    void insert(Node* node, const T& val); //ýôôåêòèâíî
-    void pop_front();
-    void pop_back();
-    void erase(Node* node);
-    void clear();
-
-    bool is_empty() const;
-    size_t size() const;
-    Node* find(const T& val);
-    Node* get_head() const;
-    Node* get_tail() const;
-    T& front();
-    T& back();
-    const T& front() const;
-    const T& back() const;
-};
-
-template <class T>
-List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}
-
-template <class T>
-List<T>::List(const List& other) : _head(nullptr), _size(0), _tail(nullptr) {
-    Node* current = other._head;
-    while (current != nullptr) {
-        push_back(current->value);
-        current = current->next;
-    }
-}
-
-template <class T>
-List<T>& List<T>::operator=(const List& other) {
-    if (this != &other) {
-        clear();
+    List<T>::List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {  // И здесь
         Node* current = other._head;
         while (current != nullptr) {
             push_back(current->value);
             current = current->next;
         }
     }
-    return *this;
-}
 
-template <class T>
-List<T>::~List() {
-    clear();
-}
-
-template <class T>
-void List<T>::push_front(const T& val) noexcept {
-    Node* node = new Node(val, _head); //ñîçäàëè çâåíî, êîòîðîå óêàçûâàåò íà head
-    _head = node;
-    if (_tail == nullptr) { //åñëè ñïèñîê ïóñòîé
-        _tail = node;
+ 
+    List<T>& List<T>::operator=(const List& other) {
+        if (this != &other) {
+            clear();
+            Node* current = other._head;
+            while (current != nullptr) {
+                push_back(current->value);
+                current = current->next;
+            }
+        }
+        return *this;
     }
-    _size++;
-}
 
-template <class T>
-void List<T>::push_back(const T& val) noexcept {
-    Node* node = new Node(val);
-    if (is_empty()) {
+    ~List() { 
+        clear(); 
+    }
+
+    Iterator begin() { return Iterator(_head); }
+    Iterator end() { return Iterator(nullptr); }
+
+    void push_front(const T& val) {
+        Node* node = new Node(val, _head);
         _head = node;
-        _tail = node;
-    }
-    else {
-        _tail->next = node; // òåêóùèé õâîñò óêàçûâàåò íà íîâûé óçåë
-        _tail = node; // íîâûé óçåë ñòàíîâèòñÿ õâîñòîì
-    }
-    _size++;
-}
-
-template <class T>
-void List<T>::insert(int pos, const T& val) {
-    if (pos < 0 || pos >  _size) {
-        throw std::logic_error("Position out of range");
+        if (_tail == nullptr) _tail = node;
+        _size++;
     }
 
-    if (pos == 0) {
-        push_front(val);
+    void push_back(const T& val) {
+        Node* node = new Node(val);
+        if (_tail == nullptr) {
+            _head = _tail = node;
+        }
+        else {
+            _tail->next = node;
+            _tail = node;
+        }
+        _size++;
     }
-    else if (pos == _size) {
-        push_back(val);
+
+    void pop_front() {
+        if (!_head) throw std::logic_error("Cannot pop from empty list");
+        Node* temp = _head;
+        _head = _head->next;
+        if (!_head) _tail = nullptr;
+        delete temp;
+        _size--;
     }
-    else {
+
+    void pop_back() {
+        if (!_head) throw std::logic_error("Cannot pop from empty list");
+        if (_head == _tail) {
+            delete _head;
+            _head = _tail = nullptr;
+        }
+        else {
+            Node* current = _head;
+            while (current->next != _tail) current = current->next;
+            delete _tail;
+            _tail = current;
+            _tail->next = nullptr;
+        }
+        _size--;
+    }
+
+    void insert(int pos, const T& val) {
+        if (pos < 0 || pos > _size) throw std::logic_error("Position out of range");
+        if (pos == 0) {
+            push_front(val);
+        }
+        else if (pos == _size) {
+            push_back(val);
+        }
+        else {
+            Node* current = _head;
+            for (int i = 0; i < pos - 1; i++) current = current->next;
+            Node* new_node = new Node(val, current->next);
+            current->next = new_node;
+            _size++;
+        }
+    }
+
+    void erase(Node* node) {
+        if (node == nullptr || !_head) throw std::logic_error("Node cannot be null");
+        if (node == _head) {
+            pop_front();
+            return;
+        }
         Node* current = _head;
-        for (int i = 0; i < pos - 1; i++) { // èùåì óçåë ïåðåä ïîçèöèåé âñòàâêè
+        while (current && current->next != node) current = current->next;
+        if (!current) throw std::logic_error("Node not found in list");
+        current->next = node->next;
+        if (node == _tail) _tail = current;
+        delete node;
+        _size--;
+    }
+
+    void clear() {
+        while (_head) {
+            pop_front();
+        }
+        _size = 0;
+    }
+
+    bool is_empty() const { return _head == nullptr; }
+    size_t size() const { return _size; }
+
+    Node* find(const T& val) {
+        Node* current = _head;
+        while (current != nullptr) {
+            if (current->value == val) return current;
             current = current->next;
         }
-        insert(current, val);
-    }
-}
-// Âñòàâêà ïîñëå óêàçàííîãî óçëà
-template <class T>
-void List<T>::insert(Node* node, const T& val) {
-    if (node == nullptr) {
-        throw std::logic_error("Node cannot be null");
-    }
-    Node* new_node = new Node(val, node->next); // ñîçäàåì íîâûé óçåë
-    node->next = new_node; // ñâÿçûâàåì 
-    if (_tail == node) { // åñëè âñòàâëÿåì ïîñëå õâîñòà
-        _tail = new_node;
-    }
-    _size++;
-}
-
-template <class T>
-void List<T>::pop_front() {
-    if (is_empty()) {
-        throw std::logic_error("Cannot pop from empty list");
-    }
-    Node* temp = _head; // ñîõðàíÿåì óêàçàòåëü íà óäàëÿåìûé óçåë
-    _head = _head->next; // ïåðåìåùàåì ãîëîâó íà ñëåäóþùèé óçåë
-    if (_head == nullptr) { // åñëè ñïèñîê ñòàë ïóñòûì
-        _tail = nullptr;
-    }
-    delete temp;
-    _size--;
-}
-
-template <class T>
-void List<T>::pop_back() {
-    if (is_empty()) {
-        throw std::logic_error("Cannot pop from empty list");
+        return nullptr;
     }
 
-    if (_head == _tail) {
-        delete _head;
-        _head = nullptr;
-        _tail = nullptr;
-    }
-    else {
-        Node* current = _head;
-        while (current->next != _tail) { // èùåì ïðåäïîñëåäíèé óçåë
-            current = current->next;
-        }
-        delete _tail;
-        _tail = current; // ïðåäïîñëåäíèé óçåë ñòàíîâèòñÿ õâîñòîì
-        _tail->next = nullptr; _tail->next = nullptr; // îáíóëÿåì óêàçàòåëü ñëåäóþùåãî
-    }
-    _size--;
-}
-
-template <class T>
-void List<T>::erase(Node* node) {
-    if (node == nullptr || is_empty()) {
-        throw std::logic_error("Node cannot be null");
+    T& front() {
+        if (!_head) throw std::logic_error("List is empty");
+        return _head->value;
     }
 
-    if (node == _head) { // åñëè óäàëÿåì ãîëîâó
-        pop_front();
-        return;
+    const T& front() const {
+        if (!_head) throw std::logic_error("List is empty");
+        return _head->value;
     }
 
-    Node* current = _head;
-    while (current != nullptr && current->next != node) { // èùåì óçåë ïåðåä óäàëÿåìûì
-        current = current->next;
+    T& back() {
+        if (!_tail) throw std::logic_error("List is empty");
+        return _tail->value;
     }
 
-    if (current == nullptr) { // åñëè óçåë íå íàéäåí
-        throw std::logic_error("Node not found in list");
+    const T& back() const {
+        if (!_tail) throw std::logic_error("List is empty");
+        return _tail->value;
     }
-
-    current->next = node->next; // ñâÿçûâàåì óçëû âîêðóã óäàëÿåìîãî
-    if (node == _tail) {
-        _tail = current;
-    }
-    delete node;
-    _size--;
-}
-
-template <class T>
-void List<T>::clear() {
-    while (!is_empty()) {
-        pop_front();
-    }
-}
-
-template <class T>
-bool List<T>::is_empty() const {
-    return _head == nullptr;
-}
-
-template <class T>
-size_t List<T>::size() const {
-    return _size;
-}
-
-template <class T>
-typename List<T>::Node* List<T>::find(const T& val) {
-    Node* current = _head;
-    while (current != nullptr) {
-        if (current->value == val) {
-            return current;
-        }
-        current = current->next;
-    }
-    return nullptr; // åñëè íå íàøëè
-}
-
-template <class T>
-typename List<T>::Node* List<T>::get_head() const {
-    return _head;
-}
-
-template <class T>
-typename List<T>::Node* List<T>::get_tail() const {
-    return _tail;
-}
-
-template <class T>
-T& List<T>::front() {
-    if (is_empty()) {
-        throw std::logic_error("List is empty");
-    }
-    return _head->value;
-}
-
-template <class T>
-T& List<T>::back() {
-    if (is_empty()) {
-        throw std::logic_error("List is empty");
-    }
-    return _tail->value;
-}
-
-template <class T>
-const T& List<T>::front() const {
-    if (is_empty()) {
-        throw std::logic_error("List is empty");
-    }
-    return _head->value;
-}
-
-template <class T>
-const T& List<T>::back() const { 
-    if (is_empty()) {
-        throw std::logic_error("List is empty");
-    }
-    return _tail->value;
-}
-
+};
