@@ -301,27 +301,18 @@ T& List<T>::back() {
 }
 
 template <class T>
-
-const T& List<T>::front() const {  
-
-const T& List<T>::front() const { 
-
+const T& List<T>::front() const {
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
     return _head->value;
 }
 
-
 template <class T>
-const T& List<T>::back() const {  
-
-
-template <class T>
-const T& List<T>::back() const {   
-
+const T& List<T>::back() const { 
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
     return _tail->value;
 }
+
