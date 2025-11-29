@@ -3,13 +3,13 @@
 
 template <class T>
 class List {
-    struct Node { //для описания 1 элемента
+    struct Node { //Г¤Г«Гї Г®ГЇГЁГ±Г Г­ГЁГї 1 ГЅГ«ГҐГ¬ГҐГ­ГІГ 
         T value;
         Node* next;
         Node(const T& value, Node* next = nullptr) : value(value), next(next) {}
     };
 
-    Node* _head; //указатель на верх массива
+    Node* _head; //ГіГЄГ Г§Г ГІГҐГ«Гј Г­Г  ГўГҐГ°Гµ Г¬Г Г±Г±ГЁГўГ 
     size_t _size; 
     Node* _tail;
 
@@ -68,14 +68,14 @@ public:
     }
 
     List();
-    List(const List& other); //идти по оригинальному массиву и создавать копии элементов 
+    List(const List& other); //ГЁГ¤ГІГЁ ГЇГ® Г®Г°ГЁГЈГЁГ­Г Г«ГјГ­Г®Г¬Гі Г¬Г Г±Г±ГЁГўГі ГЁ Г±Г®Г§Г¤Г ГўГ ГІГј ГЄГ®ГЇГЁГЁ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў 
     List& operator=(const List& other);
     ~List();
 
     void push_front(const T& val) noexcept;
     void push_back(const T& val) noexcept;
-    void insert(int pos, const T& val); //удобно пользователю
-    void insert(Node* node, const T& val); //эффективно
+    void insert(int pos, const T& val); //ГіГ¤Г®ГЎГ­Г® ГЇГ®Г«ГјГ§Г®ГўГ ГІГҐГ«Гѕ
+    void insert(Node* node, const T& val); //ГЅГґГґГҐГЄГІГЁГўГ­Г®
     void pop_front();
     void pop_back();
     void erase(Node* node);
@@ -124,9 +124,9 @@ List<T>::~List() {
 
 template <class T>
 void List<T>::push_front(const T& val) noexcept {
-    Node* node = new Node(val, _head); //создали звено, которое указывает на head
+    Node* node = new Node(val, _head); //Г±Г®Г§Г¤Г Г«ГЁ Г§ГўГҐГ­Г®, ГЄГ®ГІГ®Г°Г®ГҐ ГіГЄГ Г§Г»ГўГ ГҐГІ Г­Г  head
     _head = node;
-    if (_tail == nullptr) { //если список пустой
+    if (_tail == nullptr) { //ГҐГ±Г«ГЁ Г±ГЇГЁГ±Г®ГЄ ГЇГіГ±ГІГ®Г©
         _tail = node;
     }
     _size++;
@@ -140,8 +140,8 @@ void List<T>::push_back(const T& val) noexcept {
         _tail = node;
     }
     else {
-        _tail->next = node; // текущий хвост указывает на новый узел
-        _tail = node; // новый узел становится хвостом
+        _tail->next = node; // ГІГҐГЄГіГ№ГЁГ© ГµГўГ®Г±ГІ ГіГЄГ Г§Г»ГўГ ГҐГІ Г­Г  Г­Г®ГўГ»Г© ГіГ§ГҐГ«
+        _tail = node; // Г­Г®ГўГ»Г© ГіГ§ГҐГ« Г±ГІГ Г­Г®ГўГЁГІГ±Гї ГµГўГ®Г±ГІГ®Г¬
     }
     _size++;
 }
@@ -160,21 +160,21 @@ void List<T>::insert(int pos, const T& val) {
     }
     else {
         Node* current = _head;
-        for (int i = 0; i < pos - 1; i++) { // ищем узел перед позицией вставки
+        for (int i = 0; i < pos - 1; i++) { // ГЁГ№ГҐГ¬ ГіГ§ГҐГ« ГЇГҐГ°ГҐГ¤ ГЇГ®Г§ГЁГ¶ГЁГҐГ© ГўГ±ГІГ ГўГЄГЁ
             current = current->next;
         }
         insert(current, val);
     }
 }
-// Вставка после указанного узла
+// Г‚Г±ГІГ ГўГЄГ  ГЇГ®Г±Г«ГҐ ГіГЄГ Г§Г Г­Г­Г®ГЈГ® ГіГ§Г«Г 
 template <class T>
 void List<T>::insert(Node* node, const T& val) {
     if (node == nullptr) {
         throw std::logic_error("Node cannot be null");
     }
-    Node* new_node = new Node(val, node->next); // создаем новый узел
-    node->next = new_node; // связываем 
-    if (_tail == node) { // если вставляем после хвоста
+    Node* new_node = new Node(val, node->next); // Г±Г®Г§Г¤Г ГҐГ¬ Г­Г®ГўГ»Г© ГіГ§ГҐГ«
+    node->next = new_node; // Г±ГўГїГ§Г»ГўГ ГҐГ¬ 
+    if (_tail == node) { // ГҐГ±Г«ГЁ ГўГ±ГІГ ГўГ«ГїГҐГ¬ ГЇГ®Г±Г«ГҐ ГµГўГ®Г±ГІГ 
         _tail = new_node;
     }
     _size++;
@@ -185,9 +185,9 @@ void List<T>::pop_front() {
     if (is_empty()) {
         throw std::logic_error("Cannot pop from empty list");
     }
-    Node* temp = _head; // сохраняем указатель на удаляемый узел
-    _head = _head->next; // перемещаем голову на следующий узел
-    if (_head == nullptr) { // если список стал пустым
+    Node* temp = _head; // Г±Г®ГµГ°Г Г­ГїГҐГ¬ ГіГЄГ Г§Г ГІГҐГ«Гј Г­Г  ГіГ¤Г Г«ГїГҐГ¬Г»Г© ГіГ§ГҐГ«
+    _head = _head->next; // ГЇГҐГ°ГҐГ¬ГҐГ№Г ГҐГ¬ ГЈГ®Г«Г®ГўГі Г­Г  Г±Г«ГҐГ¤ГіГѕГ№ГЁГ© ГіГ§ГҐГ«
+    if (_head == nullptr) { // ГҐГ±Г«ГЁ Г±ГЇГЁГ±Г®ГЄ Г±ГІГ Г« ГЇГіГ±ГІГ»Г¬
         _tail = nullptr;
     }
     delete temp;
@@ -207,12 +207,12 @@ void List<T>::pop_back() {
     }
     else {
         Node* current = _head;
-        while (current->next != _tail) { // ищем предпоследний узел
+        while (current->next != _tail) { // ГЁГ№ГҐГ¬ ГЇГ°ГҐГ¤ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГіГ§ГҐГ«
             current = current->next;
         }
         delete _tail;
-        _tail = current; // предпоследний узел становится хвостом
-        _tail->next = nullptr; _tail->next = nullptr; // обнуляем указатель следующего
+        _tail = current; // ГЇГ°ГҐГ¤ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГіГ§ГҐГ« Г±ГІГ Г­Г®ГўГЁГІГ±Гї ГµГўГ®Г±ГІГ®Г¬
+        _tail->next = nullptr; _tail->next = nullptr; // Г®ГЎГ­ГіГ«ГїГҐГ¬ ГіГЄГ Г§Г ГІГҐГ«Гј Г±Г«ГҐГ¤ГіГѕГ№ГҐГЈГ®
     }
     _size--;
 }
@@ -223,21 +223,21 @@ void List<T>::erase(Node* node) {
         throw std::logic_error("Node cannot be null");
     }
 
-    if (node == _head) { // если удаляем голову
+    if (node == _head) { // ГҐГ±Г«ГЁ ГіГ¤Г Г«ГїГҐГ¬ ГЈГ®Г«Г®ГўГі
         pop_front();
         return;
     }
 
     Node* current = _head;
-    while (current != nullptr && current->next != node) { // ищем узел перед удаляемым
+    while (current != nullptr && current->next != node) { // ГЁГ№ГҐГ¬ ГіГ§ГҐГ« ГЇГҐГ°ГҐГ¤ ГіГ¤Г Г«ГїГҐГ¬Г»Г¬
         current = current->next;
     }
 
-    if (current == nullptr) { // если узел не найден
+    if (current == nullptr) { // ГҐГ±Г«ГЁ ГіГ§ГҐГ« Г­ГҐ Г­Г Г©Г¤ГҐГ­
         throw std::logic_error("Node not found in list");
     }
 
-    current->next = node->next; // связываем узлы вокруг удаляемого
+    current->next = node->next; // Г±ГўГїГ§Г»ГўГ ГҐГ¬ ГіГ§Г«Г» ГўГ®ГЄГ°ГіГЈ ГіГ¤Г Г«ГїГҐГ¬Г®ГЈГ®
     if (node == _tail) {
         _tail = current;
     }
@@ -271,7 +271,7 @@ typename List<T>::Node* List<T>::find(const T& val) {
         }
         current = current->next;
     }
-    return nullptr; // если не нашли
+    return nullptr; // ГҐГ±Г«ГЁ Г­ГҐ Г­Г ГёГ«ГЁ
 }
 
 template <class T>
@@ -301,15 +301,25 @@ T& List<T>::back() {
 }
 
 template <class T>
+
 const T& List<T>::front() const {  
+
+const T& List<T>::front() const { 
+
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
     return _head->value;
 }
 
+
 template <class T>
 const T& List<T>::back() const {  
+
+
+template <class T>
+const T& List<T>::back() const {   
+
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
