@@ -1,24 +1,24 @@
+#pragma once
 #include <iostream>
 
 template <class T>
-struct Node { //для описания 1 элемента
-    T value;
-    Node<T>* next;
-    Node(T value, Node<T>* next = nullptr) : value(value), next(next) {}
-};
-
-template <class T>
 class List {
-    Node<T>* _head; //указатель на верх массива
-    int _count;
-    Node<T>* _tail;
+    struct Node { //для описания 1 элемента
+        T value;
+        Node* next;
+        Node(const T& value, Node* next = nullptr) : value(value), next(next) {}
+    };
+
+    Node* _head; //указатель на верх массива
+    size_t _size; 
+    Node* _tail;
 
 public:
     class Iterator {
-        Node<T>* current;
+        Node* current;
     public:
-        Iterator() : current(_head) {}
-        Iterator(Node<T>* pos = nullptr) : current(pos) {}
+        Iterator() : current(nullptr) {}
+        Iterator(Node* pos) : current(pos) {}
         Iterator(const Iterator& other) : current(other.current) {}
 
         Iterator& operator=(const Iterator& other) {
@@ -39,7 +39,7 @@ public:
             return current == other.current;
         }
 
-        bool operator!=(const Iterator& other) {
+        bool operator!=(const Iterator& other) const {
             return current != other.current;
 
         }
@@ -60,7 +60,7 @@ public:
 
     };
     Iterator begin() {
-        return Iterator(_head); // исправлено
+        return Iterator(_head); 
     }
 
     Iterator end() {
@@ -75,27 +75,29 @@ public:
     void push_front(const T& val) noexcept;
     void push_back(const T& val) noexcept;
     void insert(int pos, const T& val); //удобно пользователю
-    void insert(Node<T>* node, const T& val); //эффективно
+    void insert(Node* node, const T& val); //эффективно
     void pop_front();
     void pop_back();
-    void erase(Node<T>* node);
+    void erase(Node* node);
     void clear();
 
     bool is_empty() const;
-    int size() const;
-    Node<T>* find(const T& val);
-    Node<T>* get_head() const;
-    Node<T>* get_tail() const;
+    size_t size() const;
+    Node* find(const T& val);
+    Node* get_head() const;
+    Node* get_tail() const;
     T& front();
     T& back();
+    const T& front() const;
+    const T& back() const;
 };
 
 template <class T>
-List<T>::List() : _head(nullptr), _count(0), _tail(nullptr) {}
+List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}
 
 template <class T>
-List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
-    Node<T>* current = other._head;
+List<T>::List(const List& other) : _head(nullptr), _size(0), _tail(nullptr) {
+    Node* current = other._head;
     while (current != nullptr) {
         push_back(current->value);
         current = current->next;
@@ -106,7 +108,7 @@ template <class T>
 List<T>& List<T>::operator=(const List& other) {
     if (this != &other) {
         clear();
-        Node<T>* current = other._head;
+        Node* current = other._head;
         while (current != nullptr) {
             push_back(current->value);
             current = current->next;
@@ -122,60 +124,60 @@ List<T>::~List() {
 
 template <class T>
 void List<T>::push_front(const T& val) noexcept {
-    Node<T>* node = new Node<T>(val, _head); //создали звено, которое указывает на head
+    Node* node = new Node(val, _head); //создали звено, которое указывает на head
     _head = node;
-    if (_tail == nullptr) {
+    if (_tail == nullptr) { //если список пустой
         _tail = node;
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
 void List<T>::push_back(const T& val) noexcept {
-    Node<T>* node = new Node<T>(val);
+    Node* node = new Node(val);
     if (is_empty()) {
         _head = node;
         _tail = node;
     }
     else {
-        _tail->next = node;
-        _tail = node;
+        _tail->next = node; // текущий хвост указывает на новый узел
+        _tail = node; // новый узел становится хвостом
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
 void List<T>::insert(int pos, const T& val) {
-    if (pos < 0 || pos > _count) {
+    if (pos < 0 || pos >  _size) {
         throw std::logic_error("Position out of range");
     }
 
     if (pos == 0) {
         push_front(val);
     }
-    else if (pos == _count) {
+    else if (pos == _size) {
         push_back(val);
     }
     else {
-        Node<T>* current = _head;
-        for (int i = 0; i < pos - 1; i++) {
+        Node* current = _head;
+        for (int i = 0; i < pos - 1; i++) { // ищем узел перед позицией вставки
             current = current->next;
         }
         insert(current, val);
     }
 }
-
+// Вставка после указанного узла
 template <class T>
-void List<T>::insert(Node<T>* node, const T& val) {
+void List<T>::insert(Node* node, const T& val) {
     if (node == nullptr) {
         throw std::logic_error("Node cannot be null");
     }
-    Node<T>* new_node = new Node<T>(val, node->next);
-    node->next = new_node;
-    if (_tail == node) {
+    Node* new_node = new Node(val, node->next); // создаем новый узел
+    node->next = new_node; // связываем 
+    if (_tail == node) { // если вставляем после хвоста
         _tail = new_node;
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
@@ -183,13 +185,13 @@ void List<T>::pop_front() {
     if (is_empty()) {
         throw std::logic_error("Cannot pop from empty list");
     }
-    Node<T>* temp = _head;
-    _head = _head->next;
-    if (_head == nullptr) {
+    Node* temp = _head; // сохраняем указатель на удаляемый узел
+    _head = _head->next; // перемещаем голову на следующий узел
+    if (_head == nullptr) { // если список стал пустым
         _tail = nullptr;
     }
     delete temp;
-    _count--;
+    _size--;
 }
 
 template <class T>
@@ -204,43 +206,43 @@ void List<T>::pop_back() {
         _tail = nullptr;
     }
     else {
-        Node<T>* current = _head;
-        while (current->next != _tail) {
+        Node* current = _head;
+        while (current->next != _tail) { // ищем предпоследний узел
             current = current->next;
         }
         delete _tail;
-        _tail = current;
-        _tail->next = nullptr;
+        _tail = current; // предпоследний узел становится хвостом
+        _tail->next = nullptr; _tail->next = nullptr; // обнуляем указатель следующего
     }
-    _count--;
+    _size--;
 }
 
 template <class T>
-void List<T>::erase(Node<T>* node) {
+void List<T>::erase(Node* node) {
     if (node == nullptr || is_empty()) {
         throw std::logic_error("Node cannot be null");
     }
 
-    if (node == _head) {
+    if (node == _head) { // если удаляем голову
         pop_front();
         return;
     }
 
-    Node<T>* current = _head;
-    while (current != nullptr && current->next != node) {
+    Node* current = _head;
+    while (current != nullptr && current->next != node) { // ищем узел перед удаляемым
         current = current->next;
     }
 
-    if (current == nullptr) {
+    if (current == nullptr) { // если узел не найден
         throw std::logic_error("Node not found in list");
     }
 
-    current->next = node->next;
+    current->next = node->next; // связываем узлы вокруг удаляемого
     if (node == _tail) {
         _tail = current;
     }
     delete node;
-    _count--;
+    _size--;
 }
 
 template <class T>
@@ -256,29 +258,29 @@ bool List<T>::is_empty() const {
 }
 
 template <class T>
-int List<T>::size() const {
-    return _count;
+size_t List<T>::size() const {
+    return _size;
 }
 
 template <class T>
-Node<T>* List<T>::find(const T& val) {
-    Node<T>* current = _head;
+typename List<T>::Node* List<T>::find(const T& val) {
+    Node* current = _head;
     while (current != nullptr) {
         if (current->value == val) {
             return current;
         }
         current = current->next;
     }
-    return nullptr;
+    return nullptr; // если не нашли
 }
 
 template <class T>
-Node<T>* List<T>::get_head() const {
+typename List<T>::Node* List<T>::get_head() const {
     return _head;
 }
 
 template <class T>
-Node<T>* List<T>::get_tail() const {
+typename List<T>::Node* List<T>::get_tail() const {
     return _tail;
 }
 
@@ -292,6 +294,22 @@ T& List<T>::front() {
 
 template <class T>
 T& List<T>::back() {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _tail->value;
+}
+
+template <class T>
+const T& List<T>::front() const {  
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _head->value;
+}
+
+template <class T>
+const T& List<T>::back() const {  
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
