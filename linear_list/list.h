@@ -1,24 +1,24 @@
+#pragma once
 #include <iostream>
 
 template <class T>
-struct Node { //��� �������� 1 ��������
-    T value;
-    Node<T>* next;
-    Node(T value, Node<T>* next = nullptr) : value(value), next(next) {}
-};
-
-template <class T>
 class List {
-    Node<T>* _head; //��������� �� ���� �������
-    int _count;
-    Node<T>* _tail;
+    struct Node { //äëÿ îïèñàíèÿ 1 ýëåìåíòà
+        T value;
+        Node* next;
+        Node(const T& value, Node* next = nullptr) : value(value), next(next) {}
+    };
+
+    Node* _head; //óêàçàòåëü íà âåðõ ìàññèâà
+    size_t _size; 
+    Node* _tail;
 
 public:
     class Iterator {
-        Node<T>* current;
+        Node* current;
     public:
-        Iterator() : current(_head) {}
-        Iterator(Node<T>* pos = nullptr) : current(pos) {}
+        Iterator() : current(nullptr) {}
+        Iterator(Node* pos) : current(pos) {}
         Iterator(const Iterator& other) : current(other.current) {}
 
         Iterator& operator=(const Iterator& other) {
@@ -39,7 +39,7 @@ public:
             return current == other.current;
         }
 
-        bool operator!=(const Iterator& other) {
+        bool operator!=(const Iterator& other) const {
             return current != other.current;
 
         }
@@ -60,7 +60,7 @@ public:
 
     };
     Iterator begin() {
-        return Iterator(_head); // ����������
+        return Iterator(_head); 
     }
 
     Iterator end() {
@@ -68,24 +68,24 @@ public:
     }
 
     List();
-    List(const List& other); //���� �� ������������� ������� � ��������� ����� ��������� 
+    List(const List& other); //èäòè ïî îðèãèíàëüíîìó ìàññèâó è ñîçäàâàòü êîïèè ýëåìåíòîâ 
     List& operator=(const List& other);
     ~List();
 
     void push_front(const T& val) noexcept;
     void push_back(const T& val) noexcept;
-    void insert(int pos, const T& val); //������ ������������
-    void insert(Node<T>* node, const T& val); //����������
+    void insert(int pos, const T& val); //óäîáíî ïîëüçîâàòåëþ
+    void insert(Node* node, const T& val); //ýôôåêòèâíî
     void pop_front();
     void pop_back();
-    void erase(Node<T>* node);
+    void erase(Node* node);
     void clear();
 
     bool is_empty() const;
-    int size() const;
-    Node<T>* find(const T& val);
-    Node<T>* get_head() const;
-    Node<T>* get_tail() const;
+    size_t size() const;
+    Node* find(const T& val);
+    Node* get_head() const;
+    Node* get_tail() const;
     T& front();
     T& back();
     const T& front() const;
@@ -93,11 +93,11 @@ public:
 };
 
 template <class T>
-List<T>::List() : _head(nullptr), _count(0), _tail(nullptr) {}
+List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}
 
 template <class T>
-List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
-    Node<T>* current = other._head;
+List<T>::List(const List& other) : _head(nullptr), _size(0), _tail(nullptr) {
+    Node* current = other._head;
     while (current != nullptr) {
         push_back(current->value);
         current = current->next;
@@ -108,7 +108,7 @@ template <class T>
 List<T>& List<T>::operator=(const List& other) {
     if (this != &other) {
         clear();
-        Node<T>* current = other._head;
+        Node* current = other._head;
         while (current != nullptr) {
             push_back(current->value);
             current = current->next;
@@ -124,60 +124,60 @@ List<T>::~List() {
 
 template <class T>
 void List<T>::push_front(const T& val) noexcept {
-    Node<T>* node = new Node<T>(val, _head); //������� �����, ������� ��������� �� head
+    Node* node = new Node(val, _head); //ñîçäàëè çâåíî, êîòîðîå óêàçûâàåò íà head
     _head = node;
-    if (_tail == nullptr) {
+    if (_tail == nullptr) { //åñëè ñïèñîê ïóñòîé
         _tail = node;
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
 void List<T>::push_back(const T& val) noexcept {
-    Node<T>* node = new Node<T>(val);
+    Node* node = new Node(val);
     if (is_empty()) {
         _head = node;
         _tail = node;
     }
     else {
-        _tail->next = node;
-        _tail = node;
+        _tail->next = node; // òåêóùèé õâîñò óêàçûâàåò íà íîâûé óçåë
+        _tail = node; // íîâûé óçåë ñòàíîâèòñÿ õâîñòîì
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
 void List<T>::insert(int pos, const T& val) {
-    if (pos < 0 || pos > _count) {
+    if (pos < 0 || pos >  _size) {
         throw std::logic_error("Position out of range");
     }
 
     if (pos == 0) {
         push_front(val);
     }
-    else if (pos == _count) {
+    else if (pos == _size) {
         push_back(val);
     }
     else {
-        Node<T>* current = _head;
-        for (int i = 0; i < pos - 1; i++) {
+        Node* current = _head;
+        for (int i = 0; i < pos - 1; i++) { // èùåì óçåë ïåðåä ïîçèöèåé âñòàâêè
             current = current->next;
         }
         insert(current, val);
     }
 }
-
+// Âñòàâêà ïîñëå óêàçàííîãî óçëà
 template <class T>
-void List<T>::insert(Node<T>* node, const T& val) {
+void List<T>::insert(Node* node, const T& val) {
     if (node == nullptr) {
         throw std::logic_error("Node cannot be null");
     }
-    Node<T>* new_node = new Node<T>(val, node->next);
-    node->next = new_node;
-    if (_tail == node) {
+    Node* new_node = new Node(val, node->next); // ñîçäàåì íîâûé óçåë
+    node->next = new_node; // ñâÿçûâàåì 
+    if (_tail == node) { // åñëè âñòàâëÿåì ïîñëå õâîñòà
         _tail = new_node;
     }
-    _count++;
+    _size++;
 }
 
 template <class T>
@@ -185,13 +185,13 @@ void List<T>::pop_front() {
     if (is_empty()) {
         throw std::logic_error("Cannot pop from empty list");
     }
-    Node<T>* temp = _head;
-    _head = _head->next;
-    if (_head == nullptr) {
+    Node* temp = _head; // ñîõðàíÿåì óêàçàòåëü íà óäàëÿåìûé óçåë
+    _head = _head->next; // ïåðåìåùàåì ãîëîâó íà ñëåäóþùèé óçåë
+    if (_head == nullptr) { // åñëè ñïèñîê ñòàë ïóñòûì
         _tail = nullptr;
     }
     delete temp;
-    _count--;
+    _size--;
 }
 
 template <class T>
@@ -206,43 +206,43 @@ void List<T>::pop_back() {
         _tail = nullptr;
     }
     else {
-        Node<T>* current = _head;
-        while (current->next != _tail) {
+        Node* current = _head;
+        while (current->next != _tail) { // èùåì ïðåäïîñëåäíèé óçåë
             current = current->next;
         }
         delete _tail;
-        _tail = current;
-        _tail->next = nullptr;
+        _tail = current; // ïðåäïîñëåäíèé óçåë ñòàíîâèòñÿ õâîñòîì
+        _tail->next = nullptr; _tail->next = nullptr; // îáíóëÿåì óêàçàòåëü ñëåäóþùåãî
     }
-    _count--;
+    _size--;
 }
 
 template <class T>
-void List<T>::erase(Node<T>* node) {
+void List<T>::erase(Node* node) {
     if (node == nullptr || is_empty()) {
         throw std::logic_error("Node cannot be null");
     }
 
-    if (node == _head) {
+    if (node == _head) { // åñëè óäàëÿåì ãîëîâó
         pop_front();
         return;
     }
 
-    Node<T>* current = _head;
-    while (current != nullptr && current->next != node) {
+    Node* current = _head;
+    while (current != nullptr && current->next != node) { // èùåì óçåë ïåðåä óäàëÿåìûì
         current = current->next;
     }
 
-    if (current == nullptr) {
+    if (current == nullptr) { // åñëè óçåë íå íàéäåí
         throw std::logic_error("Node not found in list");
     }
 
-    current->next = node->next;
+    current->next = node->next; // ñâÿçûâàåì óçëû âîêðóã óäàëÿåìîãî
     if (node == _tail) {
         _tail = current;
     }
     delete node;
-    _count--;
+    _size--;
 }
 
 template <class T>
@@ -258,29 +258,29 @@ bool List<T>::is_empty() const {
 }
 
 template <class T>
-int List<T>::size() const {
-    return _count;
+size_t List<T>::size() const {
+    return _size;
 }
 
 template <class T>
-Node<T>* List<T>::find(const T& val) {
-    Node<T>* current = _head;
+typename List<T>::Node* List<T>::find(const T& val) {
+    Node* current = _head;
     while (current != nullptr) {
         if (current->value == val) {
             return current;
         }
         current = current->next;
     }
-    return nullptr;
+    return nullptr; // åñëè íå íàøëè
 }
 
 template <class T>
-Node<T>* List<T>::get_head() const {
+typename List<T>::Node* List<T>::get_head() const {
     return _head;
 }
 
 template <class T>
-Node<T>* List<T>::get_tail() const {
+typename List<T>::Node* List<T>::get_tail() const {
     return _tail;
 }
 
@@ -301,7 +301,11 @@ T& List<T>::back() {
 }
 
 template <class T>
+
+const T& List<T>::front() const {  
+
 const T& List<T>::front() const { 
+
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
@@ -310,7 +314,12 @@ const T& List<T>::front() const {
 
 
 template <class T>
+const T& List<T>::back() const {  
+
+
+template <class T>
 const T& List<T>::back() const {   
+
     if (is_empty()) {
         throw std::logic_error("List is empty");
     }
