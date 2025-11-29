@@ -22,6 +22,7 @@ add_subdirectory(linear_list)
 add_subdirectory(algorithms_lib)
 add_subdirectory(DSU)
 add_subdirectory(TVector_lib) 
+add_subdirectory(list_queue_lib) 
 add_subdirectory(lib_doubly_linked_list)
 add_subdirectory(main)                # подключаем дополнительный CMakeLists.txt из подкаталога с именем main
 
