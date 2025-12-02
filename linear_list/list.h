@@ -19,7 +19,7 @@ public:
     class Iterator {
         Node<T>* current;
     public:
-        Iterator() : current(nullptr) {}  // исправлено: nullptr вместо _head
+        Iterator() : current(nullptr) {}  
         Iterator(Node<T>* pos) : current(pos) {}
         Iterator(const Iterator& other) : current(other.current) {}
 
@@ -37,7 +37,7 @@ public:
             return current->value;
         }
 
-        const T& operator*() const {  // добавлен константный оператор
+        const T& operator*() const {  
             if (current == nullptr) {
                 throw std::logic_error("null iterator");
             }
@@ -48,7 +48,7 @@ public:
             return current == other.current;
         }
 
-        bool operator!=(const Iterator& other) const {  // добавлен const
+        bool operator!=(const Iterator& other) const { 
             return current != other.current;
         }
 
@@ -96,12 +96,12 @@ public:
     Node<T>* get_head() const;
     Node<T>* get_tail() const;
     T& front();
-    const T& front() const;  // добавлен константный метод
+    const T& front() const;  
     T& back();
-    const T& back() const;   // добавлен константный метод
+    const T& back() const;   
 };
 
-// Реализации методов
+
 
 template <class T>
 List<T>::List() : _head(nullptr), _count(0), _tail(nullptr) {}
