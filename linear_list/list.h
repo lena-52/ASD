@@ -42,8 +42,7 @@ public:
 
     };
 
-   
-    List() : _head(nullptr), _tail(nullptr), _size(0) {}  
+    List() : _head(nullptr), _tail(nullptr), _size(0) {}
 
     List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {
         Node* current = other._head;
@@ -52,6 +51,7 @@ public:
             current = current->next;
         }
     }
+
     void clear() {
         while (_head != nullptr) {
             Node* temp = _head;
@@ -65,7 +65,7 @@ public:
 
     List<T>& operator=(const List& other) {
         if (this != &other) {
-            clear(); 
+            clear();
 
             Node* current = other._head;
             while (current != nullptr) {
@@ -74,8 +74,8 @@ public:
             }
         }
         return *this;
-    }  
-    
+    }
+
     ~List() {
         clear();
     }
@@ -100,7 +100,6 @@ public:
             _tail = node;
         }
         _size++;
-        std::cout << "push_back: size = " << _size << std::endl;
     }
 
     void pop_front() {
@@ -129,11 +128,11 @@ public:
     }
 
     void insert(int pos, const T& val) {
-        if (pos < 0 || pos > _size) throw std::logic_error("Position out of range");
+        if (pos < 0 || pos > static_cast<int>(_size)) throw std::logic_error("Position out of range");
         if (pos == 0) {
             push_front(val);
         }
-        else if (pos == _size) {
+        else if (pos == static_cast<int>(_size)) {
             push_back(val);
         }
         else {
@@ -160,7 +159,6 @@ public:
         _size--;
     }
 
-
     bool is_empty() const { return _head == nullptr; }
     size_t size() const { return _size; }
 
@@ -173,6 +171,15 @@ public:
         return nullptr;
     }
 
+    Node* get_head() { return _head; }
+    const Node* get_head() const { return _head; }
+    Node* get_tail() { return _tail; }
+    const Node* get_tail() const { return _tail; }
+
+    T& front() {
+        if (!_head) throw std::logic_error("List is empty");
+        return _head->value;
+    }
 
     const T& front() const {
         if (!_head) throw std::logic_error("List is empty");
