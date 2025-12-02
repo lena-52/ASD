@@ -39,23 +39,34 @@ public:
             if (current != nullptr) current = current->next;
             return *this;
         }
+
     };
 
-  
-    List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}  // Явно инициализируем
+   
+    List() : _head(nullptr), _tail(nullptr), _size(0) {}  
 
-    List<T>::List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {  // И здесь
+    List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {
         Node* current = other._head;
         while (current != nullptr) {
             push_back(current->value);
             current = current->next;
         }
     }
+    void clear() {
+        while (_head != nullptr) {
+            Node* temp = _head;
+            _head = _head->next;
+            delete temp;
+        }
+        _head = nullptr;
+        _tail = nullptr;
+        _size = 0;
+    }
 
- 
-    List<T>& List<T>::operator=(const List& other) {
+    List<T>& operator=(const List& other) {
         if (this != &other) {
-            clear();
+            clear(); 
+
             Node* current = other._head;
             while (current != nullptr) {
                 push_back(current->value);
@@ -63,10 +74,10 @@ public:
             }
         }
         return *this;
-    }
-
-    ~List() { 
-        clear(); 
+    }  
+    
+    ~List() {
+        clear();
     }
 
     Iterator begin() { return Iterator(_head); }
@@ -89,6 +100,7 @@ public:
             _tail = node;
         }
         _size++;
+        std::cout << "push_back: size = " << _size << std::endl;
     }
 
     void pop_front() {
@@ -148,12 +160,6 @@ public:
         _size--;
     }
 
-    void clear() {
-        while (_head) {
-            pop_front();
-        }
-        _size = 0;
-    }
 
     bool is_empty() const { return _head == nullptr; }
     size_t size() const { return _size; }
@@ -167,10 +173,6 @@ public:
         return nullptr;
     }
 
-    T& front() {
-        if (!_head) throw std::logic_error("List is empty");
-        return _head->value;
-    }
 
     const T& front() const {
         if (!_head) throw std::logic_error("List is empty");

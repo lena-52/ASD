@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include "list_stack.h"
-#include "list.h"
 TEST(StackListTest, DefaultConstructor) {
     StackList<int> stack;
-
     EXPECT_TRUE(stack.is_empty());
     EXPECT_EQ(stack.size(), 0);
 }
@@ -14,17 +12,17 @@ TEST(StackListTest, CopyConstructorAndAssignment) {
     stack1.push(2);
     stack1.push(3);
 
-    StackList<int> stack2(stack1); 
+    StackList<int> stack2(stack1);
     EXPECT_EQ(stack2.size(), 3);
     EXPECT_EQ(stack2.top(), 3);
 
     StackList<int> stack3;
-    stack3 = stack1; 
+    stack3 = stack1;
     EXPECT_EQ(stack3.size(), 3);
     EXPECT_EQ(stack3.top(), 3);
 }
 
-TEST(StackListTest, PushAndTopWork) {
+TEST(StackListTest, PushAndTop) {
     StackList<int> stack;
 
     stack.push(10);
@@ -60,8 +58,8 @@ TEST(StackListTest, Clear) {
     StackList<int> stack;
     stack.push(1);
     stack.push(2);
-
     stack.clear();
+
     EXPECT_TRUE(stack.is_empty());
     EXPECT_EQ(stack.size(), 0);
 }
