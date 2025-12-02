@@ -1,0 +1,1 @@
+create_project_lib(lib_doubly_linked_list)

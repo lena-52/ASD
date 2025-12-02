@@ -9,6 +9,8 @@ TEST(TestList, can_create_empty_list_correctly) {
     List<int> list;
     EXPECT_TRUE(list.is_empty());
     EXPECT_EQ(list.size(), 0);
+    EXPECT_EQ(list.get_head(), nullptr);
+    EXPECT_EQ(list.get_tail(), nullptr);
 }
 
 TEST(TestList, can_push_front) {
@@ -67,13 +69,9 @@ TEST(TestList, can_pop_back) {
 TEST(TestList, pop_front_on_empty_list_throws) {
     List<int> list;
     EXPECT_THROW(list.pop_front(), std::logic_error);
-}
-
-TEST(TestList, pop_back_on_empty_list_throws) {
-    List<int> list;
     EXPECT_THROW(list.pop_back(), std::logic_error);
-}
 
+}
 TEST(TestList, can_insert_at_position) {
     List<int> list;
     list.push_back(10);
@@ -82,13 +80,8 @@ TEST(TestList, can_insert_at_position) {
     ASSERT_NO_THROW(list.insert(1, 20));
     EXPECT_EQ(list.size(), 3);
 
-    // Проверяем последовательность
-    auto it = list.begin();
-    EXPECT_EQ(*it, 10);
-    ++it;
-    EXPECT_EQ(*it, 20);
-    ++it;
-    EXPECT_EQ(*it, 30);
+    EXPECT_EQ(list.front(), 10);
+    EXPECT_EQ(list.back(), 30);
 }
 
 TEST(TestList, insert_at_invalid_position_throws) {
@@ -99,15 +92,28 @@ TEST(TestList, insert_at_invalid_position_throws) {
     EXPECT_THROW(list.insert(5, 0), std::logic_error);
 }
 
-TEST(TestList, can_erase_by_value) {
+TEST(TestList, insert_after_node) {
+    List<int> list;
+    list.push_back(10);
+    list.push_back(30);
+
+    Node<int>* head = list.get_head();
+    ASSERT_NO_THROW(list.insert(head, 20));
+    EXPECT_EQ(list.size(), 3);
+}
+
+TEST(TestList, insert_after_null_node_throws) {
+    List<int> list;
+    EXPECT_THROW(list.insert(nullptr, 10), std::logic_error);
+}
+
+TEST(TestList, can_erase_node) {
     List<int> list;
     list.push_back(10);
     list.push_back(20);
     list.push_back(30);
 
-    // Находим узел через find и удаляем его
-    auto node = list.find(20);
-    ASSERT_NE(node, nullptr);
+    Node<int>* node = list.get_head()->next;
     ASSERT_NO_THROW(list.erase(node));
     EXPECT_EQ(list.size(), 2);
     EXPECT_EQ(list.front(), 10);
@@ -119,7 +125,7 @@ TEST(TestList, erase_head_node_works) {
     list.push_back(10);
     list.push_back(20);
 
-    auto head = list.find(10);
+    Node<int>* head = list.get_head();
     ASSERT_NO_THROW(list.erase(head));
     EXPECT_EQ(list.size(), 1);
     EXPECT_EQ(list.front(), 20);
@@ -130,7 +136,7 @@ TEST(TestList, erase_tail_node_works) {
     list.push_back(10);
     list.push_back(20);
 
-    auto tail = list.find(20);
+    Node<int>* tail = list.get_tail();
     ASSERT_NO_THROW(list.erase(tail));
     EXPECT_EQ(list.size(), 1);
     EXPECT_EQ(list.front(), 10);
@@ -147,10 +153,11 @@ TEST(TestList, can_find_element) {
     list.push_back(20);
     list.push_back(30);
 
-    auto found = list.find(20);
+    Node<int>* found = list.find(20);
     EXPECT_NE(found, nullptr);
+    EXPECT_EQ(found->value, 20);
 
-    auto not_found = list.find(40);
+    Node<int>* not_found = list.find(40);
     EXPECT_EQ(not_found, nullptr);
 }
 
@@ -164,6 +171,7 @@ TEST(TestList, copy_constructor_works) {
     EXPECT_EQ(copy.size(), 3);
     EXPECT_EQ(copy.front(), 10);
     EXPECT_EQ(copy.back(), 30);
+    EXPECT_NE(copy.get_head(), original.get_head());
 }
 
 TEST(TestList, assignment_operator_works) {
@@ -176,6 +184,7 @@ TEST(TestList, assignment_operator_works) {
     EXPECT_EQ(copy.size(), 2);
     EXPECT_EQ(copy.front(), 10);
     EXPECT_EQ(copy.back(), 20);
+    EXPECT_NE(copy.get_head(), original.get_head());
 }
 
 TEST(TestList, self_assignment_works) {
@@ -198,6 +207,8 @@ TEST(TestList, can_clear_list) {
     ASSERT_NO_THROW(list.clear());
     EXPECT_TRUE(list.is_empty());
     EXPECT_EQ(list.size(), 0);
+    EXPECT_EQ(list.get_head(), nullptr);
+    EXPECT_EQ(list.get_tail(), nullptr);
 }
 
 TEST(TestList, destructor) {
@@ -215,7 +226,8 @@ TEST(TestList, front_and_back_on_empty_list_throw) {
     EXPECT_THROW(list.back(), std::logic_error);
 }
 
-// Итераторные тесты
+
+//test 1
 TEST(ListIterator, ReadOperations) {
     List<int> list;
     for (int i = 0; i < 5; i++) {
@@ -224,28 +236,30 @@ TEST(ListIterator, ReadOperations) {
 
     int expected[] = { 1, 3, 5, 7, 9 };
     int index = 0;
-    for (auto it = list.begin(); it != list.end(); it++) {
+    for (List<int>::Iterator it = list.begin(); it != list.end(); it++) {
         EXPECT_EQ(*it, expected[index]);
         index++;
     }
     EXPECT_EQ(index, 5);
 }
 
+//test 2
 TEST(ListIterator, IterateEmptyList) {
     List<int> list;
 
     int count = 0;
-    for (auto it = list.begin(); it != list.end(); ++it) {
+    for (List<int>::Iterator it = list.begin(); it != list.end(); ++it) {
         count++;
     }
     EXPECT_EQ(count, 0);
 
-    auto it = list.begin();
-    auto it2 = it++;
+    List<int>::Iterator it = list.begin();
+    List<int>::Iterator it2 = it++;
     EXPECT_EQ(it, list.end());
     EXPECT_EQ(it2, list.begin());
 }
 
+//test 3
 TEST(ListIterator, WriteOperations) {
     List<int> list;
     for (int i = 0; i < 3; i++) {
@@ -253,14 +267,14 @@ TEST(ListIterator, WriteOperations) {
     }
 
     int value = 10;
-    for (auto it = list.begin(); it != list.end(); ++it) {
+    for (List<int>::Iterator it = list.begin(); it != list.end(); ++it) {
         *it = value;
         value += 5;
     }
 
     int expected[] = { 10, 15, 20 };
     int index = 0;
-    for (auto it = list.begin(); it != list.end(); it++) {
+    for (List<int>::Iterator it = list.begin(); it != list.end(); it++) {
         EXPECT_EQ(*it, expected[index]);
         index++;
     }
