@@ -8,6 +8,8 @@
 #include "../lib_easy_example/easy_example.h"
 
 int main() {
+  
+   
   int a, b;
   float result;
 

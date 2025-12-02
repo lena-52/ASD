@@ -113,7 +113,7 @@ TEST(TestList, can_erase_node) {
     list.push_back(20);
     list.push_back(30);
 
-    Node<int>* node = list.get_head()->next;
+    Node<int>* node = list.get_head()->next; 
     ASSERT_NO_THROW(list.erase(node));
     EXPECT_EQ(list.size(), 2);
     EXPECT_EQ(list.front(), 10);
@@ -171,7 +171,7 @@ TEST(TestList, copy_constructor_works) {
     EXPECT_EQ(copy.size(), 3);
     EXPECT_EQ(copy.front(), 10);
     EXPECT_EQ(copy.back(), 30);
-    EXPECT_NE(copy.get_head(), original.get_head());
+    EXPECT_NE(copy.get_head(), original.get_head()); 
 }
 
 TEST(TestList, assignment_operator_works) {
@@ -184,7 +184,7 @@ TEST(TestList, assignment_operator_works) {
     EXPECT_EQ(copy.size(), 2);
     EXPECT_EQ(copy.front(), 10);
     EXPECT_EQ(copy.back(), 20);
-    EXPECT_NE(copy.get_head(), original.get_head());
+    EXPECT_NE(copy.get_head(), original.get_head()); 
 }
 
 TEST(TestList, self_assignment_works) {
@@ -231,7 +231,7 @@ TEST(TestList, front_and_back_on_empty_list_throw) {
 TEST(ListIterator, ReadOperations) {
     List<int> list;
     for (int i = 0; i < 5; i++) {
-        list.push_back(i * 2 + 1);
+        list.push_back(i * 2 + 1); 
     }
 
     int expected[] = { 1, 3, 5, 7, 9 };
