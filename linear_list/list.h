@@ -40,18 +40,28 @@ public:
             return *this;
         }
 
+
     };
 
    
     List() : _head(nullptr), _tail(nullptr), _size(0) {}  
 
     List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {
+
+    };
+
+  
+    List<T>::List() : _head(nullptr), _tail(nullptr), _size(0) {}  // Явно инициализируем
+
+    List<T>::List(const List& other) : _head(nullptr), _tail(nullptr), _size(0) {  // И здесь
+
         Node* current = other._head;
         while (current != nullptr) {
             push_back(current->value);
             current = current->next;
         }
     }
+
     void clear() {
         while (_head != nullptr) {
             Node* temp = _head;
@@ -95,12 +105,49 @@ public:
         if (_tail == nullptr) {
             _head = _tail = node;
         }
+
+ 
+    List<T>& List<T>::operator=(const List& other) {
+        if (this != &other) {
+            clear();
+            Node* current = other._head;
+            while (current != nullptr) {
+                push_back(current->value);
+                current = current->next;
+            }
+        }
+        return *this;
+    }
+
+    ~List() { 
+        clear(); 
+    }
+
+    Iterator begin() { return Iterator(_head); }
+    Iterator end() { return Iterator(nullptr); }
+
+    void push_front(const T& val) {
+        Node* node = new Node(val, _head);
+        _head = node;
+        if (_tail == nullptr) _tail = node;
+        _size++;
+    }
+
+    void push_back(const T& val) {
+        Node* node = new Node(val);
+        if (_tail == nullptr) {
+            _head = _tail = node;
+        }
+
         else {
             _tail->next = node;
             _tail = node;
         }
         _size++;
+
         std::cout << "push_back: size = " << _size << std::endl;
+
+
     }
 
     void pop_front() {
@@ -158,6 +205,17 @@ public:
         if (node == _tail) _tail = current;
         delete node;
         _size--;
+
+    }
+
+
+    }
+
+    void clear() {
+        while (_head) {
+            pop_front();
+        }
+        _size = 0;
     }
 
 

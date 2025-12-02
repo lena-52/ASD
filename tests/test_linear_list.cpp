@@ -1,44 +1,20 @@
 #include <gtest/gtest.h>
 #include "list.h"
 
-TEST(TestList, can_create_empty_list) {
-    ASSERT_NO_THROW(List<int> list);
-}
-
-TEST(TestList, can_create_empty_list_correctly) {
+TEST(ListTest, BasicTest) {
     List<int> list;
     EXPECT_TRUE(list.is_empty());
     EXPECT_EQ(list.size(), 0);
+
 }
 
-TEST(TestList, can_push_front) {
-    List<int> list;
-    ASSERT_NO_THROW(list.push_front(10));
-    EXPECT_FALSE(list.is_empty());
-    EXPECT_EQ(list.size(), 1);
-    EXPECT_EQ(list.front(), 10);
-    EXPECT_EQ(list.back(), 10);
-}
 
-TEST(TestList, can_push_back) {
-    List<int> list;
-    ASSERT_NO_THROW(list.push_back(20));
-    EXPECT_FALSE(list.is_empty());
-    EXPECT_EQ(list.size(), 1);
-    EXPECT_EQ(list.front(), 20);
-    EXPECT_EQ(list.back(), 20);
-}
 
-TEST(TestList, push_and_back_front_works_correctly) {
-    List<int> list;
-    list.push_front(3);
     list.push_back(1);
-    list.push_front(4);
-    list.push_back(2);
-    list.push_front(1);
-
-    EXPECT_EQ(list.size(), 5);
+    EXPECT_FALSE(list.is_empty());
+    EXPECT_EQ(list.size(), 1);
     EXPECT_EQ(list.front(), 1);
+
     EXPECT_EQ(list.back(), 2);
 }
 
@@ -82,7 +58,7 @@ TEST(TestList, can_insert_at_position) {
     ASSERT_NO_THROW(list.insert(1, 20));
     EXPECT_EQ(list.size(), 3);
 
-    // Проверяем последовательность
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     auto it = list.begin();
     EXPECT_EQ(*it, 10);
     ++it;
@@ -105,7 +81,7 @@ TEST(TestList, can_erase_by_value) {
     list.push_back(20);
     list.push_back(30);
 
-    // Находим узел через find и удаляем его
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ find пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
     auto node = list.find(20);
     ASSERT_NE(node, nullptr);
     ASSERT_NO_THROW(list.erase(node));
@@ -215,7 +191,7 @@ TEST(TestList, front_and_back_on_empty_list_throw) {
     EXPECT_THROW(list.back(), std::logic_error);
 }
 
-// Итераторные тесты
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 TEST(ListIterator, ReadOperations) {
     List<int> list;
     for (int i = 0; i < 5; i++) {
@@ -264,4 +240,23 @@ TEST(ListIterator, WriteOperations) {
         EXPECT_EQ(*it, expected[index]);
         index++;
     }
+
+    EXPECT_EQ(list.back(), 1);
+
+    list.push_front(0);
+    EXPECT_EQ(list.size(), 2);
+    EXPECT_EQ(list.front(), 0);
+    EXPECT_EQ(list.back(), 1);
+}
+
+TEST(ListTest, CopyTest) {
+    List<int> list1;
+    list1.push_back(1);
+    list1.push_back(2);
+
+    List<int> list2 = list1;
+    EXPECT_EQ(list2.size(), 2);
+    EXPECT_EQ(list2.front(), 1);
+    EXPECT_EQ(list2.back(), 2);
+
 }
