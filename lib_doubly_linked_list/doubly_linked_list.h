@@ -1,11 +1,13 @@
 #include <iostream>
-
+#include <stdexcept> 
 template <class T>
 struct Node {
     T value;
     Node<T>* next;
-    Node<T>* prev; 
-    Node(T value, Node<T>* next = nullptr, Node<T>* prev = nullptr): value(value), next(next), prev(prev) {
+    Node<T>* prev;
+
+    Node(T value, Node<T>* next = nullptr, Node<T>* prev = nullptr)
+        : value(value), next(next), prev(prev) {
     }
 };
 
@@ -19,10 +21,9 @@ public:
     class Iterator {
         Node<T>* current;
     public:
-        Iterator() : current(_head) {}
-        Iterator(Node<T>* pos = nullptr) : current(pos) {}
+        Iterator() : current(nullptr) {}
         Iterator(const Iterator& other) : current(other.current) {}
-
+        Iterator(Node<T>* pos = nullptr) : current(pos) {}
         Iterator& operator=(const Iterator& other) {
             if (this != &other) {
                 current = other.current;
@@ -37,50 +38,73 @@ public:
             return current->value;
         }
 
+        const T& operator*() const {
+            if (current == nullptr) {
+                throw std::logic_error("null iterator");
+            }
+            return current->value;
+        }
+
+        // Оператор доступа к членам через указатель
+        T* operator->() {
+            if (current == nullptr) {
+                throw std::logic_error("Accessing through null iterator");
+            }
+            return &(current->value);
+        }
+
+        const T* operator->() const {
+            if (current == nullptr) {
+                throw std::logic_error("Accessing through null iterator");
+            }
+            return &(current->value);
+        }
+
         bool operator==(const Iterator& other) const {
             return current == other.current;
         }
 
-        bool operator!=(const Iterator& other) {
+        bool operator!=(const Iterator& other) const {
             return current != other.current;
         }
 
-        Iterator operator++(int) { // x++
-            Iterator temp = *this;
-            if (current != nullptr) {
-                current = current->next;
-            }
-            return temp;
-        }
-
-        Iterator& operator++() { // ++x
+        //++х
+        Iterator& operator++() {
             if (current != nullptr) {
                 current = current->next;
             }
             return *this;
         }
 
-        Iterator operator--(int) { // x--
+        // х++
+        Iterator operator++(int) {
             Iterator temp = *this;
-            if (current != nullptr) {
-                current = current->prev;
-            }
+            ++(*this);
             return temp;
         }
 
-        Iterator& operator--() { // --x
+        // --х
+        Iterator& operator--() {
             if (current != nullptr) {
                 current = current->prev;
             }
             return *this;
         }
 
+        // х--
+        Iterator operator--(int) {
+            Iterator temp = *this;
+            --(*this);
+            return temp;
+        }
+
+        // Получение указателя на текущий узел (для внутреннего использования)
+        Node<T>* get_node() const { return current; }
     };
 
     Iterator begin() {
         return Iterator(_head);
     }
-
     Iterator end() {
         return Iterator(nullptr);
     }
@@ -106,16 +130,20 @@ public:
     Node<T>* get_tail() const;
     T& front();
     T& back();
+    const T& List<T>::front() const;
+    const T& List<T>::back() const;
+
 };
+
 
 template <class T>
 List<T>::List() : _head(nullptr), _count(0), _tail(nullptr) {}
 
 template <class T>
 List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
-    Node<T>* current = other._head;
+    Node<T>* current = other._head; // Начинаем с головы другого списка
     while (current != nullptr) {
-        push_back(current->value);
+        push_back(current->value); // Копируем каждый элемент
         current = current->next;
     }
 }
@@ -123,10 +151,10 @@ List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
 template <class T>
 List<T>& List<T>::operator=(const List& other) {
     if (this != &other) {
-        clear();
+        clear(); // Очищаем текущий список
         Node<T>* current = other._head;
         while (current != nullptr) {
-            push_back(current->value);
+            push_back(current->value); // Копируем элементы
             current = current->next;
         }
     }
@@ -134,70 +162,68 @@ List<T>& List<T>::operator=(const List& other) {
 }
 
 template <class T>
-List<T>::~List() {
-    clear();
-}
-
-template <class T>
 void List<T>::push_front(const T& val) noexcept {
+    // Создаём новый узел, который будет новой головой
     Node<T>* node = new Node<T>(val, _head, nullptr);
     if (_head != nullptr) {
-        _head->prev = node;
+        _head->prev = node; // Старая голова теперь ссылается назад на новый узел
     }
     _head = node;
-    if (_tail == nullptr) {
+    if (_tail == nullptr) { 
         _tail = node;
     }
-    _count++;
+    _count++; 
 }
 
 template <class T>
 void List<T>::push_back(const T& val) noexcept {
-    Node<T>* node = new Node<T>(val, nullptr, _tail);
-    if (is_empty()) {
+    Node<T>* node = new Node<T>(val, nullptr, _tail); 
+    if (is_empty()) { 
         _head = node;
         _tail = node;
     }
     else {
         _tail->next = node;
-        _tail = node;
+        _tail = node; 
     }
     _count++;
 }
 
 template <class T>
 void List<T>::insert(int pos, const T& val) {
-    if (pos < 0 || pos > _count) {
+    if (pos < 0 || pos > _count) { 
         throw std::logic_error("Position out of range");
     }
 
-    if (pos == 0) {
+    if (pos == 0) { 
         push_front(val);
     }
-    else if (pos == _count) {
+    else if (pos == _count) { 
         push_back(val);
     }
     else {
+        // Находим узел, после которого нужно вставить новый
         Node<T>* current = _head;
         for (int i = 0; i < pos - 1; i++) {
             current = current->next;
         }
-        insert(current, val);
+        insert(current, val); // Вызываем другую версию insert
     }
 }
 
+// Вставка элемента после заданного узла
 template <class T>
 void List<T>::insert(Node<T>* node, const T& val) {
     if (node == nullptr) {
         throw std::logic_error("Node cannot be null");
     }
     Node<T>* new_node = new Node<T>(val, node->next, node);
-    node->next = new_node;
+    node->next = new_node; // Обновляем ссылку у предыдущего узла
     if (new_node->next != nullptr) {
-        new_node->next->prev = new_node;
+        new_node->next->prev = new_node; // Обновляем ссылку у следующего узла
     }
-    if (_tail == node) {
-        _tail = new_node;
+    if (_tail == node) { // Если вставляли после хвоста
+        _tail = new_node; // Обновляем хвост
     }
     _count++;
 }
@@ -207,15 +233,15 @@ void List<T>::pop_front() {
     if (is_empty()) {
         throw std::logic_error("Cannot pop from empty list");
     }
-    Node<T>* temp = _head;
-    _head = _head->next;
+    Node<T>* temp = _head; 
+    _head = _head->next; //головой становится след узел
     if (_head != nullptr) {
-        _head->prev = nullptr;
+        _head->prev = nullptr; // Убираем обратную ссылку у новой головы
     }
     else {
-        _tail = nullptr;
+        _tail = nullptr; // Если список стал пустым
     }
-    delete temp;
+    delete temp; 
     _count--;
 }
 
@@ -225,15 +251,15 @@ void List<T>::pop_back() {
         throw std::logic_error("Cannot pop from empty list");
     }
 
-    if (_head == _tail) {
+    if (_head == _tail) { 
         delete _head;
         _head = nullptr;
         _tail = nullptr;
     }
     else {
         Node<T>* temp = _tail;
-        _tail = _tail->prev;
-        _tail->next = nullptr;
+        _tail = _tail->prev; // Перемещаем хвост назад
+        _tail->next = nullptr; // Убираем ссылку на удаляемый узел
         delete temp;
     }
     _count--;
@@ -245,12 +271,12 @@ void List<T>::erase(Node<T>* node) {
         throw std::logic_error("Node cannot be null");
     }
 
-    if (node == _head) {
+    if (node == _head) { 
         pop_front();
         return;
     }
 
-    if (node == _tail) {
+    if (node == _tail) { 
         pop_back();
         return;
     }
@@ -263,8 +289,8 @@ void List<T>::erase(Node<T>* node) {
 
 template <class T>
 void List<T>::clear() {
-    while (!is_empty()) {
-        pop_front();
+    while (!is_empty()) { // Пока список не пуст
+        pop_front(); // Удаляем элементы с начала
     }
 }
 
@@ -282,12 +308,12 @@ template <class T>
 Node<T>* List<T>::find(const T& val) {
     Node<T>* current = _head;
     while (current != nullptr) {
-        if (current->value == val) {
-            return current;
+        if (current->value == val) { // Сравниваем значения
+            return current; // Нашли
         }
         current = current->next;
     }
-    return nullptr;
+    return nullptr; // Не нашли
 }
 
 template <class T>
@@ -315,3 +341,24 @@ T& List<T>::back() {
     }
     return _tail->value;
 }
+
+template <class T>
+const T& List<T>::front() const {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _head->value;
+}
+
+template <class T>
+const T& List<T>::back() const {
+    if (is_empty()) {
+        throw std::logic_error("List is empty");
+    }
+    return _tail->value;
+}
+
+
+
+
+
