@@ -8,6 +8,10 @@ private:
     List<T> _list;
 public:
     ListQueue() = default;
+    ListQueue(const ListQueue& other);
+    ListQueue& operator=(const ListQueue& other);
+    ~ListQueue() = default;
+
     void push(const T& value);
     void pop();
     T& front();
@@ -22,6 +26,17 @@ public:
 template <class T>
 void ListQueue<T>::push(const T& value) {
     _list.push_back(value);
+}
+
+template <class T>
+ListQueue<T>::ListQueue(const ListQueue& other) : _list(other._list) {}
+
+template <class T>
+ListQueue<T>& ListQueue<T>::operator=(const ListQueue& other) {
+    if (this != &other) {
+        _list = other._list;
+    }
+    return *this;
 }
 template <class T>
 void ListQueue<T>::pop() {
