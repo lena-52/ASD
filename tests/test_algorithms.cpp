@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include "algorithms.h"
 
+// Тесты для проверки скобок
 TEST(BracketCheck, Simple_Correct_Sequences) {
     EXPECT_TRUE(check_brackets("()"));
     EXPECT_TRUE(check_brackets("[]"));
     EXPECT_TRUE(check_brackets("{}"));
 }
 
-//вложенные скобки
 TEST(BracketCheck, Nested_Correct_Sequences) {
     EXPECT_TRUE(check_brackets("({[]})"));
     EXPECT_TRUE(check_brackets("[({})]"));
@@ -32,7 +32,7 @@ TEST(BracketCheck, Simple_Incorrect_Sequences) {
     EXPECT_FALSE(check_brackets("}"));
 }
 
-TEST(BracketCheck, notmatched_Brackets) {
+TEST(BracketCheck, Notmatched_Brackets) {
     EXPECT_FALSE(check_brackets("(]"));
     EXPECT_FALSE(check_brackets("[)"));
     EXPECT_FALSE(check_brackets("{)"));
@@ -54,5 +54,195 @@ TEST(BracketCheck, Unclosed_Brackets) {
     EXPECT_FALSE(check_brackets("()]"));
     EXPECT_FALSE(check_brackets("{}[)"));
     EXPECT_FALSE(check_brackets("[]})"));
+}
+
+// Тесты для заяц-черепахаха
+TEST(CycleTest_TurtleRabbit, EmptyList) {
+    Node<int>* head = nullptr;
+    EXPECT_FALSE(check_cycle_turtle_rabbit(head));
+}
+
+TEST(CycleTest_TurtleRabbit, SingleElementNoCycle) {
+    Node<int>* head = new Node<int>(1);
+    EXPECT_FALSE(check_cycle_turtle_rabbit(head));
+    delete head;
+}
+
+TEST(CycleTest_TurtleRabbit, NoCycle) {
+    Node<int>* head = new Node<int>(1);
+    head->next = new Node<int>(2);
+    head->next->next = new Node<int>(3);
+
+    EXPECT_FALSE(check_cycle_turtle_rabbit(head));
+
+    delete head->next->next;
+    delete head->next;
+    delete head;
+}
+
+TEST(CycleTest_TurtleRabbit, WithCycle) {
+    Node<int>* head = new Node<int>(1);
+    Node<int>* node2 = new Node<int>(2);
+    Node<int>* node3 = new Node<int>(3);
+
+    head->next = node2;
+    node2->next = node3;
+    node3->next = node2;  // цикл: 3 -> 2
+
+    EXPECT_TRUE(check_cycle_turtle_rabbit(head));
+
+    // Разрываем цикл перед удалением
+    node3->next = nullptr;
+    delete node3;
+    delete node2;
+    delete head;
+}
+
+TEST(CycleTest_TurtleRabbit, SingleElementCycle) {
+    Node<int>* head = new Node<int>(1);
+    head->next = head;  
+
+    EXPECT_TRUE(check_cycle_turtle_rabbit(head));
+
+    head->next = nullptr;
+    delete head;
+}
+
+// Тесты для разворота указателей
+TEST(CycleTest_ReversePointers, EmptyList) {
+    Node<int>* head = nullptr;
+    EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
+}
+TEST(CycleTest_ReversePointers, NoCycle) {
+    Node<int>* head = new Node<int>(1);
+    Node<int>* node2 = new Node<int>(2);
+    Node<int>* node3 = new Node<int>(3);
+
+    head->next = node2;
+    node2->next = node3;
+    node3->next = nullptr;
+
+    EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
+
+    // Проверяем восстановление структуры
+    EXPECT_EQ(head->next, node2);
+    EXPECT_EQ(node2->next, node3);
+    EXPECT_EQ(node3->next, nullptr);
+
+    delete node3;
+    delete node2;
+    delete head;
+}
+TEST(CycleTest_ReversePointers, SingleNodeSelfCycle) {
+    Node<int>* head = new Node<int>(1);
+    head->next = head;  // цикл
+
+    EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
+
+    // После функции цикл должен быть разорван
+    EXPECT_EQ(head->next, nullptr);
+    delete head;
+}
+TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
+    Node<int>* head = new Node<int>(1);
+    Node<int>* node2 = new Node<int>(2);
+    Node<int>* node3 = new Node<int>(3);
+
+    head->next = node2;
+    node2->next = node3;
+    node3->next = node2;  // цикл: 3 -> 2
+
+    EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
+
+    // Убедимся, что нет цикла, пройдя по списку
+    Node<int>* current = head;
+    int count = 0;
+    while (current != nullptr && count < 10) {  
+        current = current->next;
+        count++;
+    }
+    if (count >= 10) {
+        throw std::logic_error("Обнаружен возможный цикл. count = ");
+    }
+    head->next = nullptr;
+    node2->next = nullptr;
+    node3->next = nullptr;
+
+    delete node3;
+    delete node2;
+    delete head;
+}
+
+// Тесты для поиска места поломки
+TEST(CycleTest_FindNode, EmptyList) {
+    Node<int>* head = nullptr;
+    EXPECT_EQ(check_cycle_find_node(head), nullptr);
+}
+
+TEST(CycleTest_FindNode, NoCycle) {
+    Node<int>* head = new Node<int>(1);
+    head->next = new Node<int>(2);
+    head->next->next = new Node<int>(3);
+
+    EXPECT_EQ(check_cycle_find_node(head), nullptr);
+
+    delete head->next->next;
+    delete head->next;
+    delete head;
+}
+
+TEST(CycleTest_FindNode, CycleAtBeginning) {
+    Node<int>* head = new Node<int>(1);
+    Node<int>* node2 = new Node<int>(2);
+    Node<int>* node3 = new Node<int>(3);
+
+    head->next = node2;
+    node2->next = node3;
+    node3->next = head;  
+
+    Node<int>* cycleStart = check_cycle_find_node(head);
+    EXPECT_NE(cycleStart, nullptr);
+    EXPECT_EQ(cycleStart->value, 1);
+
+    // Разрываем цикл
+    node3->next = nullptr;
+    delete node3;
+    delete node2;
+    delete head;
+}
+
+TEST(CycleTest_FindNode, CycleInMiddle) {
+    Node<int>* head = new Node<int>(1);
+    Node<int>* node2 = new Node<int>(2);
+    Node<int>* node3 = new Node<int>(3);
+    Node<int>* node4 = new Node<int>(4);
+
+    head->next = node2;
+    node2->next = node3;
+    node3->next = node4;
+    node4->next = node2;  // цикл: 4 -> 2
+
+    Node<int>* cycleStart = check_cycle_find_node(head);
+    EXPECT_NE(cycleStart, nullptr);
+    EXPECT_EQ(cycleStart->value, 2);
+
+    // Разрываем цикл
+    node4->next = nullptr;
+    delete node4;
+    delete node3;
+    delete node2;
+    delete head;
+}
+
+TEST(CycleTest_FindNode, SelfCycle) {
+    Node<int>* head = new Node<int>(1);
+    head->next = head;  // цикл на себя
+
+    Node<int>* cycleStart = check_cycle_find_node(head);
+    EXPECT_NE(cycleStart, nullptr);
+    EXPECT_EQ(cycleStart->value, 1);
+
+    head->next = nullptr;
+    delete head;
 }
 
