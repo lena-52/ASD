@@ -1,11 +1,10 @@
 #pragma once
 #include <string>
 #include "list.h"
-
-// Функция проверки скобок
 bool check_brackets(const std::string& str);
-    
-// 1. заяц-черепаха
+int countIslands(int** grid, int rows, int cols);
+
+// 1. Г§Г ГїГ¶-Г·ГҐГ°ГҐГЇГ ГµГ 
 template <class T>
 bool check_cycle_turtle_rabbit(Node<T>* head) {
     if (head == nullptr || head->next == nullptr) {
@@ -19,15 +18,15 @@ bool check_cycle_turtle_rabbit(Node<T>* head) {
         turtle = turtle->next;          
         rabbit = rabbit->next->next;   
 
-        // Если заяц догнал черепаху - есть цикл
+        // Г…Г±Г«ГЁ Г§Г ГїГ¶ Г¤Г®ГЈГ­Г Г« Г·ГҐГ°ГҐГЇГ ГµГі - ГҐГ±ГІГј Г¶ГЁГЄГ«
         if (turtle == rabbit) {
             return true;
         }
     }
 
-    return false;  // Заяц достиг конца списка - цикла нет
+    return false;  // Г‡Г ГїГ¶ Г¤Г®Г±ГІГЁГЈ ГЄГ®Г­Г¶Г  Г±ГЇГЁГ±ГЄГ  - Г¶ГЁГЄГ«Г  Г­ГҐГІ
 }
-//разворот указателей
+//Г°Г Г§ГўГ®Г°Г®ГІ ГіГЄГ Г§Г ГІГҐГ«ГҐГ©
 template <class T>
 bool check_cycle_with_reverse_pointers(Node<T>* head) {
     if (head == nullptr) {
@@ -39,29 +38,29 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
     Node<T>* next_node = nullptr;
     Node<T>* original_head = head;
     bool has_cycle = false;
-    //разворот списка
+    //Г°Г Г§ГўГ®Г°Г®ГІ Г±ГЇГЁГ±ГЄГ 
     while (current != nullptr) {
         next_node = current->next;
         current->next = prev;
         prev = current;
         current = next_node;
 
-        // Если после разворота мы вернулись к исходной голове - цикл!
+        // Г…Г±Г«ГЁ ГЇГ®Г±Г«ГҐ Г°Г Г§ГўГ®Г°Г®ГІГ  Г¬Г» ГўГҐГ°Г­ГіГ«ГЁГ±Гј ГЄ ГЁГ±ГµГ®Г¤Г­Г®Г© ГЈГ®Г«Г®ГўГҐ - Г¶ГЁГЄГ«!
         if (current == original_head) {
             has_cycle = true;
             break;
         }
     }
 
-    // восстанавливаем список 
+    // ГўГ®Г±Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ Г±ГЇГЁГ±Г®ГЄ 
 
     if (has_cycle) {
-        // prev сейчас указывает на узел, с которого начался цикл 
-        // Находим начало цикла и разрываем его
+        // prev Г±ГҐГ©Г·Г Г± ГіГЄГ Г§Г»ГўГ ГҐГІ Г­Г  ГіГ§ГҐГ«, Г± ГЄГ®ГІГ®Г°Г®ГЈГ® Г­Г Г·Г Г«Г±Гї Г¶ГЁГЄГ« 
+        // ГЌГ ГµГ®Г¤ГЁГ¬ Г­Г Г·Г Г«Г® Г¶ГЁГЄГ«Г  ГЁ Г°Г Г§Г°Г»ГўГ ГҐГ¬ ГҐГЈГ®
         Node<T>* cycle_start = prev; 
         Node<T>* temp = cycle_start;
 
-        // Ищем узел, который ссылается на cycle_start, чтобы разорвать цикл
+        // Г€Г№ГҐГ¬ ГіГ§ГҐГ«, ГЄГ®ГІГ®Г°Г»Г© Г±Г±Г»Г«Г ГҐГІГ±Гї Г­Г  cycle_start, Г·ГІГ®ГЎГ» Г°Г Г§Г®Г°ГўГ ГІГј Г¶ГЁГЄГ«
         while (temp != nullptr && temp->next != cycle_start) {
             temp = temp->next;
         }
@@ -70,7 +69,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
             temp->next = nullptr;
         }
 
-        // Теперь восстанавливаем исходный список
+        // Г’ГҐГЇГҐГ°Гј ГўГ®Г±Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ ГЁГ±ГµГ®Г¤Г­Г»Г© Г±ГЇГЁГ±Г®ГЄ
         current = cycle_start;
         prev = nullptr;
         while (current != nullptr) {
@@ -81,7 +80,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
         }
     }
     else {
-        // Если цикла не было, просто восстанавливаем список
+        // Г…Г±Г«ГЁ Г¶ГЁГЄГ«Г  Г­ГҐ ГЎГ»Г«Г®, ГЇГ°Г®Г±ГІГ® ГўГ®Г±Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ Г±ГЇГЁГ±Г®ГЄ
         current = prev;
         prev = nullptr;
         while (current != nullptr) {
@@ -94,7 +93,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
 
     return has_cycle;
 }
-// 3. Алгоритм с возвратом указателя на место поломки списка
+// 3. ГЂГ«ГЈГ®Г°ГЁГІГ¬ Г± ГўГ®Г§ГўГ°Г ГІГ®Г¬ ГіГЄГ Г§Г ГІГҐГ«Гї Г­Г  Г¬ГҐГ±ГІГ® ГЇГ®Г«Г®Г¬ГЄГЁ Г±ГЇГЁГ±ГЄГ 
 template <class T>
 Node<T>* check_cycle_find_node(Node<T>* head) {
     if (head == nullptr || head->next == nullptr) {
@@ -119,13 +118,13 @@ Node<T>* check_cycle_find_node(Node<T>* head) {
         return nullptr;
     }
 
-    // Поиск начала цикла
+    // ГЏГ®ГЁГ±ГЄ Г­Г Г·Г Г«Г  Г¶ГЁГЄГ«Г 
     turtle = head;
     while (turtle != rabbit) {
         turtle = turtle->next;
         rabbit = rabbit->next;
     }
 
-    // turtle теперь указывает на начало цикла
+    // turtle ГІГҐГЇГҐГ°Гј ГіГЄГ Г§Г»ГўГ ГҐГІ Г­Г  Г­Г Г·Г Г«Г® Г¶ГЁГЄГ«Г 
     return turtle;
 }

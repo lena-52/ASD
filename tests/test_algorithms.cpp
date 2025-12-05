@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "algorithms.h"
 
-// Тесты для проверки скобок
+// Г’ГҐГ±ГІГ» Г¤Г«Гї ГЇГ°Г®ГўГҐГ°ГЄГЁ Г±ГЄГ®ГЎГ®ГЄ
 TEST(BracketCheck, Simple_Correct_Sequences) {
     EXPECT_TRUE(check_brackets("()"));
     EXPECT_TRUE(check_brackets("[]"));
@@ -56,7 +56,147 @@ TEST(BracketCheck, Unclosed_Brackets) {
     EXPECT_FALSE(check_brackets("[]})"));
 }
 
-// Тесты для заяц-черепахаха
+TEST(IslandsTest, ExampleFromProblem) {
+    const int rows = 5;
+    const int cols = 5;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+    }
+
+    int data[rows][cols] = {
+        {0, 1, 0, 0, 1},
+        {0, 1, 1, 0, 1},
+        {1, 1, 0, 1, 1},
+        {0, 0, 0, 0, 1},
+        {1, 0, 1, 1, 1}
+    };
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = data[i][j];
+        }
+    }
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 3);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+TEST(IslandsTest, NoLand) {
+    const int rows = 3;
+    const int cols = 3;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = 0;
+        }
+    }
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 0);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+TEST(IslandsTest, AllLand) {
+    const int rows = 3;
+    const int cols = 3;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = 1;
+        }
+    }
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 1);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+TEST(IslandsTest, DiagonalNotConnected) {
+    const int rows = 3;
+    const int cols = 3;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = 0;
+        }
+    }
+
+    grid[0][0] = 1;
+    grid[1][1] = 1;
+    grid[2][2] = 1;
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 3);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+TEST(IslandsTest, SingleIslands) {
+    const int rows = 4;
+    const int cols = 4;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = 0;
+        }
+    }
+
+    grid[0][0] = 1;
+    grid[1][2] = 1;
+    grid[3][3] = 1;
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 3);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+TEST(IslandsTest, TwoSeparatedIslands) {
+    const int rows = 4;
+    const int cols = 4;
+
+    int** grid = new int* [rows];
+    for (int i = 0; i < rows; ++i) {
+        grid[i] = new int[cols];
+        for (int j = 0; j < cols; ++j) {
+            grid[i][j] = 0;
+        }
+    }
+
+    // Г‹ГҐГўГ»Г© ГўГҐГ°ГµГ­ГЁГ© Г®Г±ГІГ°Г®Гў
+    grid[0][0] = 1;
+    grid[0][1] = 1;
+    grid[1][0] = 1;
+
+    // ГЏГ°Г ГўГ»Г© Г­ГЁГ¦Г­ГЁГ© Г®Г±ГІГ°Г®Гў
+    grid[2][2] = 1;
+    grid[2][3] = 1;
+    grid[3][2] = 1;
+    grid[3][3] = 1;
+
+    EXPECT_EQ(countIslands(grid, rows, cols), 2);
+
+    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    delete[] grid;
+}
+
+
+
+// Г’ГҐГ±ГІГ» Г¤Г«Гї Г§Г ГїГ¶-Г·ГҐГ°ГҐГЇГ ГµГ ГµГ 
 TEST(CycleTest_TurtleRabbit, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_FALSE(check_cycle_turtle_rabbit(head));
@@ -87,11 +227,11 @@ TEST(CycleTest_TurtleRabbit, WithCycle) {
 
     head->next = node2;
     node2->next = node3;
-    node3->next = node2;  // цикл: 3 -> 2
+    node3->next = node2;  // Г¶ГЁГЄГ«: 3 -> 2
 
     EXPECT_TRUE(check_cycle_turtle_rabbit(head));
 
-    // Разрываем цикл перед удалением
+    // ГђГ Г§Г°Г»ГўГ ГҐГ¬ Г¶ГЁГЄГ« ГЇГҐГ°ГҐГ¤ ГіГ¤Г Г«ГҐГ­ГЁГҐГ¬
     node3->next = nullptr;
     delete node3;
     delete node2;
@@ -108,7 +248,7 @@ TEST(CycleTest_TurtleRabbit, SingleElementCycle) {
     delete head;
 }
 
-// Тесты для разворота указателей
+// Г’ГҐГ±ГІГ» Г¤Г«Гї Г°Г Г§ГўГ®Г°Г®ГІГ  ГіГЄГ Г§Г ГІГҐГ«ГҐГ©
 TEST(CycleTest_ReversePointers, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
@@ -124,7 +264,7 @@ TEST(CycleTest_ReversePointers, NoCycle) {
 
     EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
 
-    // Проверяем восстановление структуры
+    // ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ ГўГ®Г±Г±ГІГ Г­Г®ГўГ«ГҐГ­ГЁГҐ Г±ГІГ°ГіГЄГІГіГ°Г»
     EXPECT_EQ(head->next, node2);
     EXPECT_EQ(node2->next, node3);
     EXPECT_EQ(node3->next, nullptr);
@@ -135,11 +275,11 @@ TEST(CycleTest_ReversePointers, NoCycle) {
 }
 TEST(CycleTest_ReversePointers, SingleNodeSelfCycle) {
     Node<int>* head = new Node<int>(1);
-    head->next = head;  // цикл
+    head->next = head;  // Г¶ГЁГЄГ«
 
     EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
 
-    // После функции цикл должен быть разорван
+    // ГЏГ®Г±Г«ГҐ ГґГіГ­ГЄГ¶ГЁГЁ Г¶ГЁГЄГ« Г¤Г®Г«Г¦ГҐГ­ ГЎГ»ГІГј Г°Г Г§Г®Г°ГўГ Г­
     EXPECT_EQ(head->next, nullptr);
     delete head;
 }
@@ -150,11 +290,11 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
 
     head->next = node2;
     node2->next = node3;
-    node3->next = node2;  // цикл: 3 -> 2
+    node3->next = node2;  // Г¶ГЁГЄГ«: 3 -> 2
 
     EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
 
-    // Убедимся, что нет цикла, пройдя по списку
+    // Г“ГЎГҐГ¤ГЁГ¬Г±Гї, Г·ГІГ® Г­ГҐГІ Г¶ГЁГЄГ«Г , ГЇГ°Г®Г©Г¤Гї ГЇГ® Г±ГЇГЁГ±ГЄГі
     Node<int>* current = head;
     int count = 0;
     while (current != nullptr && count < 10) {  
@@ -162,7 +302,7 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
         count++;
     }
     if (count >= 10) {
-        throw std::logic_error("Обнаружен возможный цикл. count = ");
+        throw std::logic_error("ГЋГЎГ­Г Г°ГіГ¦ГҐГ­ ГўГ®Г§Г¬Г®Г¦Г­Г»Г© Г¶ГЁГЄГ«. count = ");
     }
     head->next = nullptr;
     node2->next = nullptr;
@@ -173,7 +313,7 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
     delete head;
 }
 
-// Тесты для поиска места поломки
+// Г’ГҐГ±ГІГ» Г¤Г«Гї ГЇГ®ГЁГ±ГЄГ  Г¬ГҐГ±ГІГ  ГЇГ®Г«Г®Г¬ГЄГЁ
 TEST(CycleTest_FindNode, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_EQ(check_cycle_find_node(head), nullptr);
@@ -204,7 +344,7 @@ TEST(CycleTest_FindNode, CycleAtBeginning) {
     EXPECT_NE(cycleStart, nullptr);
     EXPECT_EQ(cycleStart->value, 1);
 
-    // Разрываем цикл
+    // ГђГ Г§Г°Г»ГўГ ГҐГ¬ Г¶ГЁГЄГ«
     node3->next = nullptr;
     delete node3;
     delete node2;
@@ -220,13 +360,13 @@ TEST(CycleTest_FindNode, CycleInMiddle) {
     head->next = node2;
     node2->next = node3;
     node3->next = node4;
-    node4->next = node2;  // цикл: 4 -> 2
+    node4->next = node2;  // Г¶ГЁГЄГ«: 4 -> 2
 
     Node<int>* cycleStart = check_cycle_find_node(head);
     EXPECT_NE(cycleStart, nullptr);
     EXPECT_EQ(cycleStart->value, 2);
 
-    // Разрываем цикл
+    // ГђГ Г§Г°Г»ГўГ ГҐГ¬ Г¶ГЁГЄГ«
     node4->next = nullptr;
     delete node4;
     delete node3;
@@ -236,7 +376,7 @@ TEST(CycleTest_FindNode, CycleInMiddle) {
 
 TEST(CycleTest_FindNode, SelfCycle) {
     Node<int>* head = new Node<int>(1);
-    head->next = head;  // цикл на себя
+    head->next = head;  // Г¶ГЁГЄГ« Г­Г  Г±ГҐГЎГї
 
     Node<int>* cycleStart = check_cycle_find_node(head);
     EXPECT_NE(cycleStart, nullptr);
@@ -245,4 +385,3 @@ TEST(CycleTest_FindNode, SelfCycle) {
     head->next = nullptr;
     delete head;
 }
-
