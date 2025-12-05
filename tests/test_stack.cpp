@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include "stack.h"
-// Тесты для конструкторов
+//РўРµСЃС‚С‹ РґР»СЏ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂРѕРІ
 TEST(StackTest, DefaultConstructor) {
     Stack<int> stack;
     EXPECT_TRUE(stack.is_empty());
@@ -24,7 +24,7 @@ TEST(StackTest, CopyConstructor) {
     EXPECT_EQ(original.top(), copy.top());
 }
 
-// Тесты для оператора присваивания
+// РўРµСЃС‚С‹ РґР»СЏ РѕРїРµСЂР°С‚РѕСЂР° РїСЂРёСЃРІР°РёРІР°РЅРёСЏ
 TEST(StackTest, AssignmentOperator) {
     Stack<int> stack1;
     stack1.push(10);
@@ -40,13 +40,17 @@ TEST(StackTest, AssignmentOperator) {
 TEST(StackTest, SelfAssignment) {
     Stack<int> stack;
     stack.push(5);
+    stack = stack; 
     stack = stack; // self-assignment
+
 
     EXPECT_EQ(stack.size(), 1);
     EXPECT_EQ(stack.top(), 5);
 }
 
-// Тесты для push и top
+
+
+
 TEST(StackTest, PushAndTop) {
     Stack<int> stack;
     stack.push(42);
@@ -66,7 +70,7 @@ TEST(StackTest, PushMultiple) {
     EXPECT_EQ(stack.size(), 3);
 }
 
-// Тесты для pop
+
 TEST(StackTest, PopOperation) {
     Stack<int> stack;
     stack.push(10);
@@ -78,7 +82,6 @@ TEST(StackTest, PopOperation) {
     EXPECT_EQ(stack.size(), 1);
 }
 
-// Тесты для is_empty и is_full
 TEST(StackTest, IsEmpty) {
     Stack<int> stack;
     EXPECT_TRUE(stack.is_empty());
@@ -99,7 +102,6 @@ TEST(StackTest, IsFull) {
     EXPECT_TRUE(stack.is_full());
 }
 
-// Тесты для size
 TEST(StackTest, Size) {
     Stack<int> stack;
     EXPECT_EQ(stack.size(), 0);
@@ -114,7 +116,7 @@ TEST(StackTest, Size) {
     EXPECT_EQ(stack.size(), 1);
 }
 
-// Тесты для clear
+
 TEST(StackTest, Clear) {
     Stack<int> stack;
     stack.push(1);
@@ -125,7 +127,8 @@ TEST(StackTest, Clear) {
     EXPECT_EQ(stack.size(), 0);
 }
 
-// Тесты для исключений
+// РўРµСЃС‚С‹ РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёР№
+
 TEST(StackTest, PopEmptyThrows) {
     Stack<int> stack;
     ASSERT_THROW(stack.pop(), std::logic_error);

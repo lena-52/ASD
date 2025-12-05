@@ -1,4 +1,3 @@
-// Copyright 2024 Marina Usova
 
 #define EASY_EXAMPLE
 #ifdef EASY_EXAMPLE
@@ -8,6 +7,8 @@
 #include "../lib_easy_example/easy_example.h"
 
 int main() {
+  
+   
   int a, b;
   float result;
 
