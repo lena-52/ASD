@@ -6,16 +6,16 @@ bool check_brackets(const std::string& str) {
     Stack<char> stack(str.length());
     for (size_t i = 0; i < str.length(); ++i) {
         char c = str[i];
-        // Åñëè îòêðûâàþùàÿ ñêîáêà, êëàäåì â ñòåê
+        // Если открывающая скобка, кладем в стек
         if (c == '(' || c == '[' || c == '{') {
             stack.push(c);
         }
         else if (c == ')' || c == ']' || c == '}') {
-            // Åñëè ñòåê ïóñò
+            // Если стек пуст
             if (stack.is_empty()) {
                 return false;
             }
-            // Èçâëåêàåì âåðõíèé ýëåìåíò ñòåêà
+            // Извлекаем верхний элемент стека
             char top_elem = stack.top();
             stack.pop();
 
@@ -24,7 +24,7 @@ bool check_brackets(const std::string& str) {
             }
         }
     }
-    // Â êîíöå àëãîðèòìà, åñëè ñòåê íå ïóñò, òî åñòü íåçàêðûòûå ñêîáêè
+    // В конце алгоритма, если стек не пуст, то есть незакрытые скобки 
     return stack.is_empty();
 }
 
@@ -41,42 +41,44 @@ int countIslands(int** grid, int rows, int cols) {
     }
 
     DSU dsu(rows * cols);
-    // Ìàññèâ íàïðàâëåíèé äëÿ ïðîâåðêè ñîñåäåé
+    // Массив направлений для проверки соседей
     const int directions[4][2] = { {-1, 0}, /*up*/ {1, 0}, /*down*/ {0, -1}, /*left*/ {0, 1}  /*right*/};
 
+    // объединение соседних земельных клеток
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            if (grid[i][j] == 1) { // ÿâëÿåòñÿ ëè òåêóùàÿ ÿ÷åéêà ñóøåé 
-                int currentIndex = i * cols + j; // Ïðåîáðàçóåì äâóìåðíûå êîîðäèíàòû [i][j] â îäíîìåðíûé èíäåêñ
+            if (grid[i][j] == 1) { // является ли текущая ячейка сушей
+                int currentIndex = i * cols + j; // Преобразуем двумерные координаты [i][j] в одномерный индекс
 
+                // Проверяем всех четырех соседей
                 for (int d = 0; d < 4; ++d) {
-                    // Âû÷èñëÿåì êîîðäèíàòû ñîñåäíåé ÿ÷åéêè:
                     int ni = i + directions[d][0];
                     int nj = j + directions[d][1];
 
+                    // Проверяем, что сосед в пределах матрицы и тоже является сушей
                     if (ni >= 0 && ni < rows && nj >= 0 && nj < cols && grid[ni][nj] == 1) {
                         int neighborIndex = ni * cols + nj;
-                        // Ïðîâåðÿåì, íàõîäÿòñÿ ëè òåêóùàÿ ÿ÷åéêà è ñîñåä â ðàçíûõ ìíîæåñòâàõ 
+                        // Проверяем, находятся ли текущая ячейка и сосед в разных множествах
                         if (dsu.find(currentIndex) != dsu.find(neighborIndex)) {
                             dsu.unite(currentIndex, neighborIndex);
-                        }// Åñëè ÿ÷åéêè â ðàçíûõ ìíîæåñòâàõ, îáúåäèíÿåì èõ
+                        }
                     }
                 }
             }
         }
     }
-    // ïîäñ÷èòàåì êîëè÷åñòâî óíèêàëüíûõ îñòðîâîâ
+    // подсчет уникальных островов
     int islandCount = 0;
-    bool* isRoot = new bool[rows * cols](); // Ñîçäàåì ìàññèâ ôëàãîâ äëÿ îòñëåæèâàíèÿ óæå ó÷òåííûõ êîðíåé
+    bool* isRoot = new bool[rows * cols](); // Создаем массив флагов для отслеживания уже учтенных корней
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             if (grid[i][j] == 1) {
                 int index = i * cols + j;
-                int root = dsu.find(index);
+                int root = dsu.find(index); // Находим корень множества
 
-                if (!isRoot[root]) { // Ïðîâåðÿåì, âñòðå÷àëñÿ ëè ýòîò êîðåíü ðàíüøå
-                    isRoot[root] = true; // Ïîìå÷àåì êîðåíü êàê ó÷òåííûé
+                if (!isRoot[root]) {   // Если этот корень еще не был учтен
+                    isRoot[root] = true; // Помечаем корень как учтенный
                     ++islandCount;
                 }
             }

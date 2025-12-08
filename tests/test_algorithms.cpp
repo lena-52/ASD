@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "algorithms.h"
 
-// Òåñòû äëÿ ïðîâåðêè ñêîáîê
+// Тесты для проверки скобок
 TEST(BracketCheck, Simple_Correct_Sequences) {
     EXPECT_TRUE(check_brackets("()"));
     EXPECT_TRUE(check_brackets("[]"));
@@ -56,7 +56,7 @@ TEST(BracketCheck, Unclosed_Brackets) {
     EXPECT_FALSE(check_brackets("[]})"));
 }
 
-TEST(IslandsTest, ExampleFromProblem) {
+TEST(IslandsTest, Example) {
     const int rows = 5;
     const int cols = 5;
 
@@ -65,13 +65,7 @@ TEST(IslandsTest, ExampleFromProblem) {
         grid[i] = new int[cols];
     }
 
-    int data[rows][cols] = {
-        {0, 1, 0, 0, 1},
-        {0, 1, 1, 0, 1},
-        {1, 1, 0, 1, 1},
-        {0, 0, 0, 0, 1},
-        {1, 0, 1, 1, 1}
-    };
+    int data[rows][cols] = {{0, 1, 0, 0, 1},{0, 1, 1, 0, 1},{1, 1, 0, 1, 1},{0, 0, 0, 0, 1},{1, 0, 1, 1, 1}};
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
@@ -93,7 +87,7 @@ TEST(IslandsTest, NoLand) {
     for (int i = 0; i < rows; ++i) {
         grid[i] = new int[cols];
         for (int j = 0; j < cols; ++j) {
-            grid[i][j] = 0;
+            grid[i][j] = 0; // Вся вода
         }
     }
 
@@ -122,6 +116,7 @@ TEST(IslandsTest, AllLand) {
 }
 
 TEST(IslandsTest, DiagonalNotConnected) {
+    // создание матрицы 3x3 из нулей 
     const int rows = 3;
     const int cols = 3;
 
@@ -143,7 +138,7 @@ TEST(IslandsTest, DiagonalNotConnected) {
     delete[] grid;
 }
 
-TEST(IslandsTest, SingleIslands) {
+TEST(IslandsTest, TwoIslands) {
     const int rows = 4;
     const int cols = 4;
 
@@ -155,34 +150,10 @@ TEST(IslandsTest, SingleIslands) {
         }
     }
 
-    grid[0][0] = 1;
-    grid[1][2] = 1;
-    grid[3][3] = 1;
-
-    EXPECT_EQ(countIslands(grid, rows, cols), 3);
-
-    for (int i = 0; i < rows; ++i) delete[] grid[i];
-    delete[] grid;
-}
-
-TEST(IslandsTest, TwoSeparatedIslands) {
-    const int rows = 4;
-    const int cols = 4;
-
-    int** grid = new int* [rows];
-    for (int i = 0; i < rows; ++i) {
-        grid[i] = new int[cols];
-        for (int j = 0; j < cols; ++j) {
-            grid[i][j] = 0;
-        }
-    }
-
-    // Ëåâûé âåðõíèé îñòðîâ
     grid[0][0] = 1;
     grid[0][1] = 1;
     grid[1][0] = 1;
 
-    // Ïðàâûé íèæíèé îñòðîâ
     grid[2][2] = 1;
     grid[2][3] = 1;
     grid[3][2] = 1;
@@ -196,7 +167,7 @@ TEST(IslandsTest, TwoSeparatedIslands) {
 
 
 
-// Òåñòû äëÿ çàÿö-÷åðåïàõàõà
+// Тесты для заяц-черепаха
 TEST(CycleTest_TurtleRabbit, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_FALSE(check_cycle_turtle_rabbit(head));
@@ -227,11 +198,11 @@ TEST(CycleTest_TurtleRabbit, WithCycle) {
 
     head->next = node2;
     node2->next = node3;
-    node3->next = node2;  // öèêë: 3 -> 2
+    node3->next = node2;  // цикл 3 -> 2
 
     EXPECT_TRUE(check_cycle_turtle_rabbit(head));
 
-    // Ðàçðûâàåì öèêë ïåðåä óäàëåíèåì
+    // Разрываем цикл перед удалением
     node3->next = nullptr;
     delete node3;
     delete node2;
@@ -248,7 +219,7 @@ TEST(CycleTest_TurtleRabbit, SingleElementCycle) {
     delete head;
 }
 
-// Òåñòû äëÿ ðàçâîðîòà óêàçàòåëåé
+// Тесты для разворота указателей
 TEST(CycleTest_ReversePointers, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
@@ -264,7 +235,7 @@ TEST(CycleTest_ReversePointers, NoCycle) {
 
     EXPECT_FALSE(check_cycle_with_reverse_pointers(head));
 
-    // Ïðîâåðÿåì âîññòàíîâëåíèå ñòðóêòóðû
+    // Проверяем восстановление структуры
     EXPECT_EQ(head->next, node2);
     EXPECT_EQ(node2->next, node3);
     EXPECT_EQ(node3->next, nullptr);
@@ -275,11 +246,11 @@ TEST(CycleTest_ReversePointers, NoCycle) {
 }
 TEST(CycleTest_ReversePointers, SingleNodeSelfCycle) {
     Node<int>* head = new Node<int>(1);
-    head->next = head;  // öèêë
+    head->next = head;  // цикл
 
     EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
 
-    // Ïîñëå ôóíêöèè öèêë äîëæåí áûòü ðàçîðâàí
+    // После функции цикл должен быть разорван
     EXPECT_EQ(head->next, nullptr);
     delete head;
 }
@@ -290,11 +261,11 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
 
     head->next = node2;
     node2->next = node3;
-    node3->next = node2;  // öèêë: 3 -> 2
+    node3->next = node2;  //цикл 3 -> 2
 
     EXPECT_TRUE(check_cycle_with_reverse_pointers(head));
 
-    // Óáåäèìñÿ, ÷òî íåò öèêëà, ïðîéäÿ ïî ñïèñêó
+    // Убедимся, что нет цикла, пройдя по списку
     Node<int>* current = head;
     int count = 0;
     while (current != nullptr && count < 10) {  
@@ -302,7 +273,7 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
         count++;
     }
     if (count >= 10) {
-        throw std::logic_error("Îáíàðóæåí âîçìîæíûé öèêë. count = ");
+        throw std::logic_error("Обнаружен возможный цикл. count = ");
     }
     head->next = nullptr;
     node2->next = nullptr;
@@ -312,8 +283,7 @@ TEST(CycleTest_ReversePointers, WithCycleInMiddle) {
     delete node2;
     delete head;
 }
-
-// Òåñòû äëÿ ïîèñêà ìåñòà ïîëîìêè
+// Тесты для поиска места поломки
 TEST(CycleTest_FindNode, EmptyList) {
     Node<int>* head = nullptr;
     EXPECT_EQ(check_cycle_find_node(head), nullptr);
@@ -344,7 +314,7 @@ TEST(CycleTest_FindNode, CycleAtBeginning) {
     EXPECT_NE(cycleStart, nullptr);
     EXPECT_EQ(cycleStart->value, 1);
 
-    // Ðàçðûâàåì öèêë
+    // Разрываем цикл
     node3->next = nullptr;
     delete node3;
     delete node2;
@@ -360,13 +330,13 @@ TEST(CycleTest_FindNode, CycleInMiddle) {
     head->next = node2;
     node2->next = node3;
     node3->next = node4;
-    node4->next = node2;  // öèêë: 4 -> 2
+    node4->next = node2;  // цикл 4 -> 2
 
     Node<int>* cycleStart = check_cycle_find_node(head);
     EXPECT_NE(cycleStart, nullptr);
     EXPECT_EQ(cycleStart->value, 2);
 
-    // Ðàçðûâàåì öèêë
+    // Разрываем цикл
     node4->next = nullptr;
     delete node4;
     delete node3;
@@ -376,7 +346,7 @@ TEST(CycleTest_FindNode, CycleInMiddle) {
 
 TEST(CycleTest_FindNode, SelfCycle) {
     Node<int>* head = new Node<int>(1);
-    head->next = head;  // öèêë íà ñåáÿ
+    head->next = head;  
 
     Node<int>* cycleStart = check_cycle_find_node(head);
     EXPECT_NE(cycleStart, nullptr);

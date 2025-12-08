@@ -4,7 +4,7 @@
 bool check_brackets(const std::string& str);
 int countIslands(int** grid, int rows, int cols);
 
-// 1. çàÿö-÷åðåïàõà
+// 1. заяц-черепаха
 template <class T>
 bool check_cycle_turtle_rabbit(Node<T>* head) {
     if (head == nullptr || head->next == nullptr) {
@@ -18,15 +18,15 @@ bool check_cycle_turtle_rabbit(Node<T>* head) {
         turtle = turtle->next;          
         rabbit = rabbit->next->next;   
 
-        // Åñëè çàÿö äîãíàë ÷åðåïàõó - åñòü öèêë
+        // Если заяц догнал черепаху - есть цикл       
         if (turtle == rabbit) {
             return true;
         }
     }
 
-    return false;  // Çàÿö äîñòèã êîíöà ñïèñêà - öèêëà íåò
+    return false; // Заяц достиг конца списка - цикла нет
 }
-//ðàçâîðîò óêàçàòåëåé
+//разворот указателей
 template <class T>
 bool check_cycle_with_reverse_pointers(Node<T>* head) {
     if (head == nullptr) {
@@ -38,29 +38,29 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
     Node<T>* next_node = nullptr;
     Node<T>* original_head = head;
     bool has_cycle = false;
-    //ðàçâîðîò ñïèñêà
+    // Разворот списка
     while (current != nullptr) {
         next_node = current->next;
         current->next = prev;
         prev = current;
         current = next_node;
 
-        // Åñëè ïîñëå ðàçâîðîòà ìû âåðíóëèñü ê èñõîäíîé ãîëîâå - öèêë!
+        // Если после разворота мы вернулись к исходной голове - цикл
         if (current == original_head) {
             has_cycle = true;
             break;
         }
     }
 
-    // âîññòàíàâëèâàåì ñïèñîê 
+    // Восстанавливаем исходный список 
 
     if (has_cycle) {
-        // prev ñåé÷àñ óêàçûâàåò íà óçåë, ñ êîòîðîãî íà÷àëñÿ öèêë 
-        // Íàõîäèì íà÷àëî öèêëà è ðàçðûâàåì åãî
+        // prev сейчас указывает на узел, с которого начался цикл
+         // Находим начало цикла и разрываем его
         Node<T>* cycle_start = prev; 
         Node<T>* temp = cycle_start;
 
-        // Èùåì óçåë, êîòîðûé ññûëàåòñÿ íà cycle_start, ÷òîáû ðàçîðâàòü öèêë
+        // Ищем узел, который ссылается на cycle_start, чтобы разорвать цикл
         while (temp != nullptr && temp->next != cycle_start) {
             temp = temp->next;
         }
@@ -69,7 +69,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
             temp->next = nullptr;
         }
 
-        // Òåïåðü âîññòàíàâëèâàåì èñõîäíûé ñïèñîê
+        // восстанавливаем исходный список
         current = cycle_start;
         prev = nullptr;
         while (current != nullptr) {
@@ -80,7 +80,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
         }
     }
     else {
-        // Åñëè öèêëà íå áûëî, ïðîñòî âîññòàíàâëèâàåì ñïèñîê
+        // Если цикла не было, просто восстанавливаем список
         current = prev;
         prev = nullptr;
         while (current != nullptr) {
@@ -93,7 +93,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
 
     return has_cycle;
 }
-// 3. Àëãîðèòì ñ âîçâðàòîì óêàçàòåëÿ íà ìåñòî ïîëîìêè ñïèñêà
+// 3. Алгоритм с возвратом указателя на место начала цикла
 template <class T>
 Node<T>* check_cycle_find_node(Node<T>* head) {
     if (head == nullptr || head->next == nullptr) {
@@ -118,13 +118,13 @@ Node<T>* check_cycle_find_node(Node<T>* head) {
         return nullptr;
     }
 
-    // Ïîèñê íà÷àëà öèêëà
+    // Поиск начала цикла
     turtle = head;
     while (turtle != rabbit) {
         turtle = turtle->next;
         rabbit = rabbit->next;
     }
 
-    // turtle òåïåðü óêàçûâàåò íà íà÷àëî öèêëà
+    // turtle теперь указывает на начало цикла
     return turtle;
 }
