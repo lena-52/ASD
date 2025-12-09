@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 
 template <class T>
@@ -70,6 +71,13 @@ public:
     }
 
     Iterator end() {
+        return Iterator(nullptr);
+    }
+    Iterator begin() const {
+        return Iterator(_head);
+    }
+
+    Iterator end() const {
         return Iterator(nullptr);
     }
 
