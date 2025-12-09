@@ -10,10 +10,10 @@ namespace Parser {
     bool isValidVariableName(const std::string& name);
     bool isFunctionName(const std::string& name);
     int getOperatorPriority(const std::string& op, bool isUnary);
-    double parseNumber(const std::string& str, size_t& pos);  // Только целые числа
+    int parseNumber(const std::string& str, size_t& pos);  // Только целые числа
     std::string parseIdentifier(const std::string& str, size_t& pos);
 
-    // парсинг
+    // Преобразует строковое выражение в список лексем 
     List<Lexem> parse(const std::string& expression);
 
     // Функции для обработки унарного минуса и модуля
@@ -21,6 +21,5 @@ namespace Parser {
     void processAbsoluteValue(List<Lexem>& lexems);
 
     //  функции для обработки ошибок
-    std::string getErrorContext(const std::string& expr, size_t pos);
     void throwParseError(const std::string& expr, size_t pos, const std::string& msg);
 }

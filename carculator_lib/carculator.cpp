@@ -58,7 +58,7 @@ void Calculator::run() {
 }
 
 void Calculator::createExpression() {
-    std::string expr;
+    std::string expr; 
     std::cout << "\nВведите выражение: ";
     std::getline(std::cin, expr);
 
@@ -68,7 +68,7 @@ void Calculator::createExpression() {
     }
 
     try {
-        Expression newExpr(expr);
+        Expression newExpr(expr); // Создание объекта Expression с переданной строкой
         expressions.push_back(newExpr);
         std::cout << "Выражение добавлено\n";
         std::cout << "ID выражения: " << expressions.size() << "\n";
@@ -141,18 +141,18 @@ void Calculator::setVariables() {
         return;
     }
 
-    Expression& expr = expressions[id - 1];
-    auto varNames = expr.getVariableNames();
+    Expression& expr = expressions[id - 1];  
+    auto varNames = expr.getVariableNames();  // Получение списка переменных
 
     if (varNames.empty()) {
         std::cout << "В выражении нет переменных\n";
         return;
     }
 
-    std::cout << "\n=== Задание переменных для выражения " << id << " ===\n";
+    std::cout << "\nЗадание переменных для выражения " << id << "\n";
     std::cout << "Выражение: " << expr.getExpression() << "\n\n";
 
-    std::map<std::string, double> vars;
+    std::map<std::string, double> vars;  // Словарь для хранения значений переменных
     for (const auto& varName : varNames) {
         double value;
         std::cout << "Введите значение для " << varName << ": ";
@@ -164,11 +164,11 @@ void Calculator::setVariables() {
         }
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        vars[varName] = value;
+        vars[varName] = value;  // Сохранение значения в словарь
     }
 
-    expr.setVariables(vars);
-    std::cout << "\nПеременные успешно заданы\n";
+    expr.setVariables(vars);   // Установка значений переменных в выражение
+    std::cout << "\nПеременные заданы\n";
 }
 
 void Calculator::evaluateExpression() {
@@ -224,9 +224,10 @@ void Calculator::evaluateExpression() {
 
     try {
         double result = expr.evaluate();
-        std::cout << "\n=== РЕЗУЛЬТАТ ===\n";
+        std::cout << "\nРЕЗУЛЬТАТ\n";
         std::cout << "Выражение: " << expr.getExpression() << "\n";
         std::cout << "Значения переменных: " << expr.getVariablesString() << "\n";
+        // Вывод с точностью 10 знаков
         std::cout << "Результат: " << std::setprecision(10) << result << "\n";
     }
     catch (const std::exception& e) {
@@ -249,16 +250,13 @@ void Calculator::displayAllExpressions() const {
     std::cout << std::string(TOTAL_WIDTH, '-') << "\n";
 
     // Заголовок таблицы
-    std::cout << "| " << std::left << std::setw(ID_WIDTH) << "ID"
-        << "| " << std::setw(EXPR_WIDTH) << "ВЫРАЖЕНИЕ"
-        << "| " << std::setw(VARS_WIDTH) << "ЗНАЧЕНИЯ ПЕРЕМЕННЫХ" << "|\n";
-
+    std::cout << "| " << std::left << std::setw(ID_WIDTH) << "ID" << "| " << std::setw(EXPR_WIDTH) << "ВЫРАЖЕНИЕ" << "| " << std::setw(VARS_WIDTH) << "ЗНАЧЕНИЯ ПЕРЕМЕННЫХ" << "|\n";
     std::cout << std::string(TOTAL_WIDTH, '-') << "\n";
 
+    // Вывод каждой строки таблицы
     for (int i = 0; i < expressions.size(); i++) {
         const Expression& expr = expressions[i];
-
-        // Получаем строку с переменными напрямую из выражения
+        // Получение строки с переменными
         std::string varsStr = expr.getVariablesString();
 
         // Форматируем выражение
@@ -273,23 +271,9 @@ void Calculator::displayAllExpressions() const {
         }
 
         // Выводим строку
-        std::cout << "| " << std::setw(ID_WIDTH) << (i + 1)
-            << "| " << std::setw(EXPR_WIDTH) << exprStr
-            << "| " << std::setw(VARS_WIDTH) << varsStr << "|\n";
+        std::cout << "| " << std::setw(ID_WIDTH) << (i + 1) << "| " << std::setw(EXPR_WIDTH) << exprStr << "| " << std::setw(VARS_WIDTH) << varsStr << "|\n";
     }
 
     std::cout << std::string(TOTAL_WIDTH, '-') << "\n";
 }
 
-std::map<std::string, double> Calculator::inputVariables(const std::vector<std::string>& varNames) {
-    std::map<std::string, double> vars;
-
-    for (const auto& varName : varNames) {
-        double value;
-        std::cout << "Введите значение для " << varName << ": ";
-        std::cin >> value;
-        vars[varName] = value;
-    }
-
-    return vars;
-}

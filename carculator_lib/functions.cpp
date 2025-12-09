@@ -1,19 +1,18 @@
-#include "functions.h"
+п»ї#include "functions.h"
 #include <cmath>
 #include <limits>
 #include <iostream>
+const double PI = 3.14159265358979323846;
 
 namespace Functions {
 
-    // Ряд Тейлора для sin(x)
+    // Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ sin(x)  x - x^3/3! + x^5/5! - x^7/7! + ...
     double my_sin(double x) {
-        const double PI = 3.14159265358979323846;
-        x = fmod(x, 2 * PI);
+        x = fmod(x, 2 * PI); //РїСЂРёРІРµРґРµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° Рє РґРёР°РїР°Р·РѕРЅСѓ[0, 2ПЂ)
 
         double result = 0.0;
         double term = x;
         double x_sq = x * x;
-        int n = 1;
 
         for (int i = 1; i <= 10; i++) {
             result += term;
@@ -23,9 +22,8 @@ namespace Functions {
         return result;
     }
 
-    // Ряд Тейлора для cos(x)
+    // Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ cos(x) 1 - x^2/2! + x^4/4! - x^6/6! + ...
     double my_cos(double x) {
-        const double PI = 3.14159265358979323846;
         x = fmod(x, 2 * PI);
 
         double result = 1.0;
@@ -43,35 +41,36 @@ namespace Functions {
     // tg(x) = sin(x)/cos(x)
     double my_tg(double x) {
         double cos_val = my_cos(x);
+        // РџСЂРѕРІРµСЂРєР° РґРµР»РµРЅРёСЏ РЅР° РЅРѕР»СЊ 
         if (fabs(cos_val) < 1e-10) {
-            throw std::runtime_error("Тангенс не определен для этого угла");
+            throw std::runtime_error("РўР°РЅРіРµРЅСЃ РЅРµ РѕРїСЂРµРґРµР»РµРЅ РґР»СЏ СЌС‚РѕРіРѕ СѓРіР»Р°");
         }
         return my_sin(x) / cos_val;
     }
 
-    // Абсолютное значение
     double my_abs(double x) {
         return (x < 0) ? -x : x;
     }
 
-    // Возведение в степень (только для целых показателей)
     double my_pow(double base, double exp) {
-        // Проверяем, целый ли показатель
+        // РџСЂРѕРІРµСЂСЏРµРј, С†РµР»С‹Р№ Р»Рё РїРѕРєР°Р·Р°С‚РµР»СЊ
         double intpart;
-        if (modf(exp, &intpart) != 0.0) {
-            throw std::runtime_error("Возведение в степень поддерживается только для целых показателей");
+        if (modf(exp, &intpart) != 0.0) { // Р•СЃР»Рё РґСЂРѕР±РЅР°СЏ С‡Р°СЃС‚СЊ РЅРµ СЂР°РІРЅР° 0.0 - РїРѕРєР°Р·Р°С‚РµР»СЊ РЅРµ С†РµР»С‹Р№
+            throw std::runtime_error("РџРѕРєР°Р·Р°С‚РµР»СЊ СЃС‚РµРїРµРЅРё РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С†РµР»С‹Рј");
         }
 
         int n = static_cast<int>(exp);
         double result = 1.0;
-        bool negative = (n < 0);
+        bool negative = (n < 0); // Р¤Р»Р°Рі РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕР№ СЃС‚РµРїРµРЅРё
 
-        if (negative) n = -n;
+        if (negative) {   // Р•СЃР»Рё СЃС‚РµРїРµРЅСЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅР°СЏ, СЂР°Р±РѕС‚Р°РµРј СЃ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕР№
+            n = -n; 
+        }
 
         for (int i = 0; i < n; i++) {
             result *= base;
         }
-
+        //СѓС‡РёС‚С‹РІР°РµРј РѕС‚СЂРёС†Р°С‚РµР»СЊРЅСѓСЋ СЃС‚РµРїРµРЅСЊ
         return negative ? 1.0 / result : result;
     }
 }
