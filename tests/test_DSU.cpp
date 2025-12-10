@@ -66,7 +66,7 @@ TEST(DSUTest, OutOfBoundsAccess) {
     EXPECT_THROW(dsu.find(5), std::out_of_range);
 }
 
-TEST(DSUTest, PathCompression) {
+TEST(DSUTest, WaysCompression) {
     DSU dsu(10);
 
     dsu.unite(0, 1);
@@ -74,12 +74,12 @@ TEST(DSUTest, PathCompression) {
     dsu.unite(2, 3);
     dsu.unite(3, 4);
 
-    int root_before = dsu.find(4); 
+    int root = dsu.find(4); 
 
     // После сжатия пути все элементы должны иметь прямой доступ к корню
-    EXPECT_EQ(dsu.find(0), root_before);
-    EXPECT_EQ(dsu.find(1), root_before);
-    EXPECT_EQ(dsu.find(2), root_before);
-    EXPECT_EQ(dsu.find(3), root_before);
-    EXPECT_EQ(dsu.find(4), root_before);
+    EXPECT_EQ(dsu.find(0), root);
+    EXPECT_EQ(dsu.find(1), root);
+    EXPECT_EQ(dsu.find(2), root);
+    EXPECT_EQ(dsu.find(3), root);
+    EXPECT_EQ(dsu.find(4), root);
 }

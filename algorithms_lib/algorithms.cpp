@@ -69,23 +69,19 @@ int countIslands(int** grid, int rows, int cols) {
     }
     // подсчет уникальных островов
     int islandCount = 0;
-    bool* isRoot = new bool[rows * cols](); // Создаем массив флагов для отслеживания уже учтенных корней
-
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             if (grid[i][j] == 1) {
                 int index = i * cols + j;
                 int root = dsu.find(index); // Находим корень множества
-
-                if (!isRoot[root]) {   // Если этот корень еще не был учтен
-                    isRoot[root] = true; // Помечаем корень как учтенный
+                if (root == index) {
+                    // Каждый корень соответствует одному острову
                     ++islandCount;
                 }
             }
         }
     }
 
-    delete[] isRoot;
     return islandCount;
 }
 

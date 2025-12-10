@@ -8,9 +8,7 @@ private:
     List<T> _list;
 public:
     StackList() = default;
-
     StackList(const StackList& other) : _list(other._list) {}
-
     ~StackList() = default;
 
     StackList& operator=(const StackList& other) {

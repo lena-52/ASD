@@ -26,7 +26,7 @@ bool check_cycle_turtle_rabbit(Node<T>* head) {
 
     return false; // Заяц достиг конца списка - цикла нет
 }
-//разворот указателей
+//2. разворот указателей
 template <class T>
 bool check_cycle_with_reverse_pointers(Node<T>* head) {
     if (head == nullptr) {
@@ -38,6 +38,7 @@ bool check_cycle_with_reverse_pointers(Node<T>* head) {
     Node<T>* next_node = nullptr;
     Node<T>* original_head = head;
     bool has_cycle = false;
+
     // Разворот списка
     while (current != nullptr) {
         next_node = current->next;

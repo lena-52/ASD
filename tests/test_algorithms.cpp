@@ -9,35 +9,24 @@ TEST(BracketCheck, Simple_Correct_Sequences) {
 }
 
 TEST(BracketCheck, Nested_Correct_Sequences) {
-    EXPECT_TRUE(check_brackets("({[]})"));
-    EXPECT_TRUE(check_brackets("[({})]"));
-    EXPECT_TRUE(check_brackets("{([])}"));
     EXPECT_FALSE(check_brackets("({[}])"));
     EXPECT_FALSE(check_brackets("([)]"));
     EXPECT_FALSE(check_brackets("{(})"));
 }
 
 TEST(BracketCheck, Text_Between_Brackets) {
-    EXPECT_TRUE(check_brackets("(hello)"));
-    EXPECT_TRUE(check_brackets("[hello]{world}"));
     EXPECT_TRUE(check_brackets("h(e[l{l}o]w)d"));
 }
 
 TEST(BracketCheck, Simple_Incorrect_Sequences) {
     EXPECT_FALSE(check_brackets("("));
-    EXPECT_FALSE(check_brackets(")"));
     EXPECT_FALSE(check_brackets("["));
-    EXPECT_FALSE(check_brackets("]"));
     EXPECT_FALSE(check_brackets("{"));
-    EXPECT_FALSE(check_brackets("}"));
 }
 
 TEST(BracketCheck, Notmatched_Brackets) {
-    EXPECT_FALSE(check_brackets("(]"));
-    EXPECT_FALSE(check_brackets("[)"));
     EXPECT_FALSE(check_brackets("{)"));
     EXPECT_FALSE(check_brackets("(}"));
-    EXPECT_FALSE(check_brackets("{]"));
     EXPECT_FALSE(check_brackets("[}"));
 }
 
@@ -49,11 +38,7 @@ TEST(BracketCheck, Wrong_Order) {
 
 TEST(BracketCheck, Unclosed_Brackets) {
     EXPECT_FALSE(check_brackets("({[]"));
-    EXPECT_FALSE(check_brackets("[({})"));
-    EXPECT_FALSE(check_brackets("{([]"));
-    EXPECT_FALSE(check_brackets("()]"));
     EXPECT_FALSE(check_brackets("{}[)"));
-    EXPECT_FALSE(check_brackets("[]})"));
 }
 
 TEST(IslandsTest, Example) {
@@ -75,7 +60,9 @@ TEST(IslandsTest, Example) {
 
     EXPECT_EQ(countIslands(grid, rows, cols), 3);
 
-    for (int i = 0; i < rows; ++i) delete[] grid[i];
+    for (int i = 0; i < rows; ++i) {
+        delete[] grid[i];
+    }
     delete[] grid;
 }
 

@@ -81,9 +81,26 @@ public:
         return Iterator(nullptr);
     }
 
+    Iterator rbegin() {
+        return Iterator(_tail);
+    }
+
+    Iterator rend() {
+        return Iterator(nullptr);
+    }
+
+    Iterator rbegin() const {
+        return Iterator(_tail);
+    }
+
+    Iterator rend() const {
+        return Iterator(nullptr);
+    }
+
     List();
     List(const List& other); //идти по оригинальному массиву и создавать копии элементов 
     List& operator=(const List& other);
+    List(std::initializer_list<T> init_list);
     ~List();
 
     void push_front(const T& val) noexcept;
@@ -120,6 +137,14 @@ List<T>::List(const List& other) : _head(nullptr), _count(0), _tail(nullptr) {
 }
 
 template <class T>
+List<T>::List(std::initializer_list<T> init_list) : _head(nullptr), _count(0), _tail(nullptr) {
+
+    for (const auto& elem : init_list) {
+        push_back(elem);
+    }
+}
+
+template <class T>
 List<T>& List<T>::operator=(const List& other) {
     if (this != &other) {
         clear();
@@ -140,10 +165,13 @@ List<T>::~List() {
 template <class T>
 void List<T>::push_front(const T& val) noexcept {
     Node<T>* node = new Node<T>(val, _head); //создали звено, которое указывает на head
-    _head = node;
-    if (_tail == nullptr) {
+    if (is_empty()) {
+        _head = node;
         _tail = node;
     }
+    else {
+        _head = node;
+    }  
     _count++;
 }
 

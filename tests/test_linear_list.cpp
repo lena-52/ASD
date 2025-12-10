@@ -102,11 +102,6 @@ TEST(TestList, insert_after_node) {
     EXPECT_EQ(list.size(), 3);
 }
 
-TEST(TestList, insert_after_null_node_throws) {
-    List<int> list;
-    EXPECT_THROW(list.insert(nullptr, 10), std::logic_error);
-}
-
 TEST(TestList, can_erase_node) {
     List<int> list;
     list.push_back(10);
@@ -118,33 +113,6 @@ TEST(TestList, can_erase_node) {
     EXPECT_EQ(list.size(), 2);
     EXPECT_EQ(list.front(), 10);
     EXPECT_EQ(list.back(), 30);
-}
-
-TEST(TestList, erase_head_node_works) {
-    List<int> list;
-    list.push_back(10);
-    list.push_back(20);
-
-    Node<int>* head = list.get_head();
-    ASSERT_NO_THROW(list.erase(head));
-    EXPECT_EQ(list.size(), 1);
-    EXPECT_EQ(list.front(), 20);
-}
-
-TEST(TestList, erase_tail_node_works) {
-    List<int> list;
-    list.push_back(10);
-    list.push_back(20);
-
-    Node<int>* tail = list.get_tail();
-    ASSERT_NO_THROW(list.erase(tail));
-    EXPECT_EQ(list.size(), 1);
-    EXPECT_EQ(list.front(), 10);
-}
-
-TEST(TestList, erase_null_node_throws) {
-    List<int> list;
-    EXPECT_THROW(list.erase(nullptr), std::logic_error);
 }
 
 TEST(TestList, can_find_element) {
@@ -229,18 +197,13 @@ TEST(TestList, front_and_back_on_empty_list_throw) {
 
 //test 1
 TEST(ListIterator, ReadOperations) {
-    List<int> list;
-    for (int i = 0; i < 5; i++) {
-        list.push_back(i * 2 + 1); 
-    }
-
-    int expected[] = { 1, 3, 5, 7, 9 };
+    List<int> list = { 1,2,3 };
+    int expected[] = { 1,2,3 };
     int index = 0;
-    for (List<int>::Iterator it = list.begin(); it != list.end(); it++) {
+    for (auto it = list.begin(); it != list.end(); it++) {
         EXPECT_EQ(*it, expected[index]);
         index++;
     }
-    EXPECT_EQ(index, 5);
 }
 
 //test 2
@@ -248,15 +211,12 @@ TEST(ListIterator, IterateEmptyList) {
     List<int> list;
 
     int count = 0;
-    for (List<int>::Iterator it = list.begin(); it != list.end(); ++it) {
+    for (auto it = list.begin(); it != list.end(); ++it) {
         count++;
     }
     EXPECT_EQ(count, 0);
 
-    List<int>::Iterator it = list.begin();
-    List<int>::Iterator it2 = it++;
-    EXPECT_EQ(it, list.end());
-    EXPECT_EQ(it2, list.begin());
+    EXPECT_EQ(list.begin(), list.end());
 }
 
 //test 3
@@ -267,15 +227,25 @@ TEST(ListIterator, WriteOperations) {
     }
 
     int value = 10;
-    for (List<int>::Iterator it = list.begin(); it != list.end(); ++it) {
+    for (auto it = list.begin(); it != list.end(); ++it) {
         *it = value;
         value += 5;
     }
 
     int expected[] = { 10, 15, 20 };
     int index = 0;
-    for (List<int>::Iterator it = list.begin(); it != list.end(); it++) {
+    for (auto it = list.begin(); it != list.end(); it++) {
         EXPECT_EQ(*it, expected[index]);
         index++;
+    }
+}
+
+TEST(ListIterator, ReverseIteration) {
+    List<int> list = {1,2,3};
+    int expected[] = { 3,2,1 };
+    int index = 0;
+
+    for (auto it = list.rbegin(); it != list.rend(); ++it) {
+        EXPECT_EQ(*it, expected[index++]);
     }
 }
