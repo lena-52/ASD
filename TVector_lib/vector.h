@@ -105,7 +105,6 @@ public:
     void pop_back();
     void pop_front();
     void insert(int pos, const T& value);
-    void resize(int new_size);
     void repacking(int new_capacity);
     void clear();
     bool is_empty() const noexcept;
@@ -159,7 +158,7 @@ TVector<T>::TVector(int size) {
     if (size < 0) {
         throw std::logic_error("Size cannot be negative");
     }
-    _capacity = (size + STEP_OF_CAPACITY - 1) / STEP_OF_CAPACITY * STEP_OF_CAPACITY;
+    _capacity = ((size + STEP_OF_CAPACITY - 1) / STEP_OF_CAPACITY) * STEP_OF_CAPACITY;
     if (_capacity == 0) {
         _capacity = STEP_OF_CAPACITY;
     }
@@ -243,7 +242,6 @@ template<typename T>
 TVector<T>::~TVector() {
     if (_data != nullptr) {
         delete[] _data;
-        _data = nullptr;
     }
 }
 
@@ -267,23 +265,30 @@ void TVector<T>::insert(int pos, const T& value) {
         int new_capacity = (_capacity == 0) ? STEP_OF_CAPACITY : _capacity + STEP_OF_CAPACITY;
         T* new_data = new T[new_capacity];
 
-        for (int i = 0; i < pos; ++i) {
-            new_data[i] = std::move(_data[i]);
+        try {
+            for (int i = 0; i < pos; ++i) {
+                new_data[i] = std::move_if_noexcept(_data[i]);
+            }
+            // Вставляем новый элемент на нужную позицию
+            new_data[pos] = value;
+
+            for (int i = pos; i < _size; ++i) {
+                new_data[i + 1] = std::move_if_noexcept(_data[i]);
+            }
         }
-
-        new_data[pos] = value;
-
-        for (int i = pos; i < _size; ++i) {
-            new_data[i + 1] = std::move(_data[i]);
+        catch (...) {
+            delete[] new_data;
+            throw;
         }
 
         delete[] _data;
-        _data = new_data;
+        _data = new_data;   // Перенаправляем указатель на новый массив
         _capacity = new_capacity;
     }
-    else {
+    else {  // есть свободное место
+        // Сдвигаем существующие элементы вправо, начиная с конца
         for (int i = _size - 1; i >= pos; --i) {
-            _data[i + 1] = std::move(_data[i]);
+            _data[i + 1] = std::move_if_noexcept(_data[i]);
         }
 
         _data[pos] = value;
@@ -293,19 +298,30 @@ void TVector<T>::insert(int pos, const T& value) {
 }
 
 template<typename T>
-void TVector<T>::repacking(int capacity) { //  Перепаковка с новой емкостью
-    if (capacity < _size) {
+void TVector<T>::repacking(int new_capacity) { // Перепаковка с новой емкостью
+    if (new_capacity < _size) {
         throw std::logic_error("capacity cannot be less than current size");
     }
-    T* data = new T[capacity];
-
-    // Переносим существующие элементы
-    for (int i = 0; i < _size; ++i) {
-        data[i] = std::move(_data[i]);
+    if (new_capacity < 0) {
+        throw std::logic_error("capacity cannot be negative");
     }
-    delete[] _data;
-    _data = data;
-    _capacity = capacity;
+    if (new_capacity == _capacity) {
+        return;
+    }
+
+    T* new_data = new T[new_capacity];
+
+    // Копируем существующие элементы
+    for (int i = 0; i < _size; ++i) {
+        new_data[i] = std::move(_data[i]);
+    }
+
+    // Освобождаем старую память
+    if (_data != nullptr) {
+        delete[] _data;
+    }
+    _data = new_data;
+    _capacity = new_capacity;
 }
 
 template<typename T>
@@ -316,8 +332,14 @@ void TVector<T>::push_back(const T& value) {
         T* new_data = new T[new_capacity];
 
         // Копируем старые элементы
-        for (int i = 0; i < _size; ++i) {
-            new_data[i] = std::move(_data[i]);
+        try {
+            for (int i = 0; i < _size; ++i) {
+                new_data[i] = std::move_if_noexcept(_data[i]);
+            }
+        }
+        catch (...) {
+            delete[] new_data;
+            throw;
         }
 
         // Освобождаем старую память
@@ -357,17 +379,15 @@ void TVector<T>::pop_front() {
     --_size;
 }
 
-template<typename T>
-void TVector<T>::resize(int size) {
-    resize(size, T());
-}
 
 template<typename T>
 void TVector<T>::clear() {
     if (_data != nullptr) {
-        delete[]_data;
+        delete[] _data;
         _data = nullptr;
     }
+    _size = 0;
+    _capacity = 0;
 }
 
 template<typename T>

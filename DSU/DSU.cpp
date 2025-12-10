@@ -35,8 +35,22 @@ int DSU::find(int x) {
         throw std::out_of_range("Index out of bounds");
     }
 
-    if (_parent[x] != x) {
+   /* if (_parent[x] != x) {
         _parent[x] = find(_parent[x]);
     }
-    return _parent[x];
+    return _parent[x];*/
+
+    int root = x;
+    while (root != _parent[root]) {
+        root = _parent[root];
+    }
+
+    // сжатие путей для всех узлов на пути
+    while (x != root) {
+        int next = _parent[x];
+        _parent[x] = root;
+        x = next;
+    }
+
+    return root;
 }

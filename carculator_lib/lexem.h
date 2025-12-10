@@ -14,7 +14,6 @@ enum TypeLexem {
     ClosedAbs
 };
 
-// Константы для ограничений
 const int MAX_VARIABLE_LENGTH = 20;  // Максимальная длина имени переменной
 
 struct Lexem {
