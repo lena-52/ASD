@@ -1,17 +1,20 @@
 #include "polynom.h"
 #include <sstream>
 #include <regex>
+#include <cctype>
+#include <iomanip>
+#include <cmath>
 
 Polynom::Polynom() {}
 
-// 1 моном
+// Из монома
 Polynom::Polynom(const Monom& m) {
     if (m.getCoef() != 0.0) {
         monoms.push_back(m);
     }
 }
 
-//вектор мономов
+// Из вектора мономов
 Polynom::Polynom(const std::vector<Monom>& mlist) : monoms(mlist) {
     simplify();
     sort();
@@ -35,39 +38,40 @@ Polynom& Polynom::operator=(const Polynom& other) {
 
 void Polynom::simplify() {
     if (monoms.empty()) return;
+
     sort();
+
     // Объединяем подобные мономы
     std::vector<Monom> result;
-    // Проходим по всем мономам
+
     for (size_t i = 0; i < monoms.size(); i++) {
         Monom current = monoms[i];
 
-        if (current.getCoef() == 0.0) continue;
+        if (std::abs(current.getCoef()) < 1e-10) continue; // Игнорируем нулевые
 
+        // Объединяем с последующими подобными
         while (i + 1 < monoms.size() && current.isSimilar(monoms[i + 1])) {
-            try {
-                current += monoms[i + 1]; // Складываем коэффициенты
-            }
-            catch (...) {
-                // Игнорируем ошибки сложения
-            }
+            current += monoms[i + 1];
             i++;
         }
 
         // Добавляем только если коэффициент не нулевой
-        if (current.getCoef() != 0.0) {
+        if (std::abs(current.getCoef()) > 1e-10) {
             result.push_back(current);
         }
     }
+
     monoms = result;
 }
 
 void Polynom::sort() {
-    std::sort(monoms.begin(), monoms.end(), [](const Monom& a, const Monom& b) { return a < b; });
+    std::sort(monoms.begin(), monoms.end(), [](const Monom& a, const Monom& b) {
+        return a < b;
+        });
 }
 
 void Polynom::addMonom(const Monom& m) {
-    if (m.getCoef() != 0.0) {
+    if (std::abs(m.getCoef()) > 1e-10) {
         monoms.push_back(m);
         simplify();
     }
@@ -109,6 +113,7 @@ Polynom Polynom::operator*(const Polynom& other) const {
                 result.addMonom(m1 * m2);
             }
             catch (...) {
+                // Игнорируем ошибки умножения
             }
         }
     }
@@ -208,20 +213,28 @@ std::ostream& operator<<(std::ostream& os, const Polynom& p) {
         return os;
     }
 
-    for (size_t i = 0; i < p.monoms.size(); i++) {
-        if (i > 0) {
-            if (p.monoms[i].getCoef() >= 0) {
+    bool first = true;
+    for (const auto& monom : p.monoms) {
+        double coef = monom.getCoef();
+
+        if (!first) {
+            if (coef > 0) {
                 os << " + ";
             }
             else {
                 os << " - ";
             }
         }
+        else {
+            first = false;
+            if (coef < 0) {
+                os << "-";
+            }
+        }
 
-        double coef = p.monoms[i].getCoef();
-        Monom toPrint = (i == 0 || coef < 0) ? p.monoms[i] : Monom(abs(coef),
-            p.monoms[i].getPx(), p.monoms[i].getPy(), p.monoms[i].getPz());
-
+        // Создаем моном с положительным коэффициентом для вывода
+        double absCoef = std::abs(coef);
+        Monom toPrint(absCoef, monom.getPx(), monom.getPy(), monom.getPz());
         os << toPrint;
     }
 
@@ -241,79 +254,111 @@ std::string Polynom::toString() const {
     return ss.str();
 }
 
-// Парсинг строки 
+// Парсинг строки
 Polynom Polynom::parse(const std::string& str) {
-    std::stringstream ss(str);
     std::vector<Monom> monoms;
-    std::string token;
+    std::string s = str;
 
-    // Разделяем по знакам + и - (кроме первого)
-    std::string current;
-    for (char c : str) {
-        if ((c == '+' || c == '-') && !current.empty()) {
-            // Парсим текущий моном
-            std::stringstream monom_ss(current);
-            double coef = 1.0;
-            int px = 0, py = 0, pz = 0;
+    // Удаляем пробелы
+    s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
 
-            // коэффициент x^степень y^степень z^степень
-            monom_ss >> coef;
-
-            size_t pos;
-            if ((pos = current.find('x')) != std::string::npos) {
-                px = 1;
-                if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                    px = std::stoi(current.substr(pos + 2));
-                }
-            }
-            if ((pos = current.find('y')) != std::string::npos) {
-                py = 1;
-                if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                    py = std::stoi(current.substr(pos + 2));
-                }
-            }
-            if ((pos = current.find('z')) != std::string::npos) {
-                pz = 1;
-                if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                    pz = std::stoi(current.substr(pos + 2));
-                }
-            }
-
-            monoms.push_back(Monom(coef, px, py, pz));
-            current = (c == '-') ? "-" : "";
-        }
-        else {
-            current += c;
-        }
+    if (s.empty() || s == "0") {
+        return Polynom();
     }
 
-    // Парсим последний моном
-    if (!current.empty()) {
-        std::stringstream monom_ss(current);
+    size_t pos = 0;
+    bool positive = true;
+
+    while (pos < s.length()) {
+        // Определяем знак
+        if (s[pos] == '+') {
+            positive = true;
+            pos++;
+        }
+        else if (s[pos] == '-') {
+            positive = false;
+            pos++;
+        }
+
+        // Если дошли до конца, выходим
+        if (pos >= s.length()) break;
+
+        // Парсим коэффициент
         double coef = 1.0;
+        std::string coefStr;
+
+        // Проверяем, начинается ли с цифры или точки
+        if (std::isdigit(s[pos]) || s[pos] == '.') {
+            while (pos < s.length() && (std::isdigit(s[pos]) || s[pos] == '.')) {
+                coefStr += s[pos];
+                pos++;
+            }
+            if (!coefStr.empty()) {
+                coef = std::stod(coefStr);
+            }
+        }
+
+        if (!positive) {
+            coef = -coef;
+        }
+
+        // Парсим степени
         int px = 0, py = 0, pz = 0;
 
-        monom_ss >> coef;
-
-        // Аналогичный парсинг для последнего монома
-        size_t pos;
-        if ((pos = current.find('x')) != std::string::npos) {
+        // Парсим x
+        if (pos < s.length() && s[pos] == 'x') {
+            pos++;
             px = 1;
-            if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                px = std::stoi(current.substr(pos + 2));
+            if (pos < s.length() && s[pos] == '^') {
+                pos++;
+                std::string powerStr;
+                while (pos < s.length() && std::isdigit(s[pos])) {
+                    powerStr += s[pos];
+                    pos++;
+                }
+                if (!powerStr.empty()) {
+                    px = std::stoi(powerStr);
+                }
             }
         }
-        if ((pos = current.find('y')) != std::string::npos) {
+
+        // Парсим y
+        if (pos < s.length() && s[pos] == 'y') {
+            pos++;
             py = 1;
-            if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                py = std::stoi(current.substr(pos + 2));
+            if (pos < s.length() && s[pos] == '^') {
+                pos++;
+                std::string powerStr;
+                while (pos < s.length() && std::isdigit(s[pos])) {
+                    powerStr += s[pos];
+                    pos++;
+                }
+                if (!powerStr.empty()) {
+                    py = std::stoi(powerStr);
+                }
             }
         }
-        if ((pos = current.find('z')) != std::string::npos) {
+
+        // Парсим z
+        if (pos < s.length() && s[pos] == 'z') {
+            pos++;
             pz = 1;
-            if (pos + 1 < current.size() && current[pos + 1] == '^') {
-                pz = std::stoi(current.substr(pos + 2));
+            if (pos < s.length() && s[pos] == '^') {
+                pos++;
+                std::string powerStr;
+                while (pos < s.length() && std::isdigit(s[pos])) {
+                    powerStr += s[pos];
+                    pos++;
+                }
+                if (!powerStr.empty()) {
+                    pz = std::stoi(powerStr);
+                }
             }
+        }
+
+        // Если нет переменных, это свободный член
+        if (px == 0 && py == 0 && pz == 0 && coefStr.empty()) {
+            coef = positive ? 1.0 : -1.0;
         }
 
         monoms.push_back(Monom(coef, px, py, pz));

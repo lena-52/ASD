@@ -63,6 +63,6 @@ public:
     bool operator>(const Monom& other) const;
 };
 
-// умножениe/делениe на константу 
+// умножениe на константу 
 Monom operator*(double num, const Monom& m);
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <stdexcept>
+#include <sstream>
 
 class Polynom {
     std::vector<Monom> monoms; // Список мономов

@@ -1,9 +1,9 @@
 #include "monom.h"
+#include <cmath>
+#include <iomanip>
 
 Monom::Monom(double c, int x, int y, int z) : coef(c), px(x), py(y), pz(z) {
-    if (c == 0) {
-        px = py = pz = 0; 
-    }
+    simplify();
 }
 
 Monom::Monom(const Monom& other) : coef(other.coef), px(other.px), py(other.py), pz(other.pz) {}
@@ -34,7 +34,8 @@ void Monom::simplify() {
 
 bool Monom::operator==(const Monom& other) const {
     if (coef == 0 && other.coef == 0) return true;
-    return (coef == other.coef && px == other.px && py == other.py && pz == other.pz);
+    const double eps = 1e-10;
+    return (std::abs(coef - other.coef) < eps &&px == other.px && py == other.py && pz == other.pz);
 }
 
 bool Monom::operator!=(const Monom& other) const {
@@ -56,7 +57,7 @@ Monom Monom::operator-(const Monom& other) const {
 }
 
 Monom Monom::operator*(const Monom& other) const {
-    return Monom(coef * other.coef, px + other.px,py + other.py, pz + other.pz);
+    return Monom(coef * other.coef, px + other.px, py + other.py, pz + other.pz);
 }
 
 Monom Monom::operator/(const Monom& other) const {
@@ -64,12 +65,11 @@ Monom Monom::operator/(const Monom& other) const {
         throw std::runtime_error("Division by zero");
     }
 
-    // Проверка, что степени делятся без остатка
     if (px < other.px || py < other.py || pz < other.pz) {
-        throw std::runtime_error("negative powers would result");
+        throw std::runtime_error("Negative powers would result");
     }
 
-    return Monom(coef / other.coef,px - other.px,py - other.py,pz - other.pz);
+    return Monom(coef / other.coef, px - other.px, py - other.py, pz - other.pz);
 }
 
 Monom Monom::operator*(double num) const {
@@ -106,6 +106,7 @@ Monom& Monom::operator*=(const Monom& other) {
     px += other.px;
     py += other.py;
     pz += other.pz;
+    simplify();
     return *this;
 }
 
@@ -115,13 +116,14 @@ Monom& Monom::operator/=(const Monom& other) {
     }
 
     if (px < other.px || py < other.py || pz < other.pz) {
-        throw std::runtime_error("negative powers would result");
+        throw std::runtime_error("Negative powers would result");
     }
 
     coef /= other.coef;
     px -= other.px;
     py -= other.py;
     pz -= other.pz;
+    simplify();
     return *this;
 }
 
@@ -162,6 +164,32 @@ std::istream& operator>>(std::istream& is, Monom& m) {
 
     m.px = m.py = m.pz = 0;
 
+    size_t pos;
+    if ((pos = str.find('x')) != std::string::npos) {
+        if (pos + 1 < str.size() && str[pos + 1] == '^') {
+            m.px = std::stoi(str.substr(pos + 2));
+        }
+        else {
+            m.px = 1;
+        }
+    }
+    if ((pos = str.find('y')) != std::string::npos) {
+        if (pos + 1 < str.size() && str[pos + 1] == '^') {
+            m.py = std::stoi(str.substr(pos + 2));
+        }
+        else {
+            m.py = 1;
+        }
+    }
+    if ((pos = str.find('z')) != std::string::npos) {
+        if (pos + 1 < str.size() && str[pos + 1] == '^') {
+            m.pz = std::stoi(str.substr(pos + 2));
+        }
+        else {
+            m.pz = 1;
+        }
+    }
+
     return is;
 }
 
@@ -179,6 +207,7 @@ std::string Monom::toString() const {
         ss << "-";
     }
     else {
+        // Убираем лишние нули после запятой
         ss << coef;
     }
 
@@ -208,8 +237,9 @@ std::string Monom::toString() const {
 
     // Если все степени 0, выводим только коэффициент
     if (px == 0 && py == 0 && pz == 0) {
-        ss.str("");
-        ss << coef;
+        std::stringstream temp;
+        temp << coef;
+        return temp.str();
     }
 
     return ss.str();
@@ -217,21 +247,21 @@ std::string Monom::toString() const {
 
 // Операторы сравнения для сортировки
 bool Monom::operator<(const Monom& other) const {
-    // Сначала сравниваем степень x
+    // Сначала сравниваем степень x 
     if (px != other.px) {
-        return px > other.px; // Большая степень x идет раньше
+        return px > other.px; 
     }
     // Если степени x равны, сравниваем степень y
     if (py != other.py) {
-        return py > other.py; // Большая степень y идет раньше
+        return py > other.py; 
     }
     // Если степени x и y равны, сравниваем степень z
     if (pz != other.pz) {
-        return pz > other.pz; // Большая степень z идет раньше
+        return pz > other.pz; 
     }
+    // Если все степени равны, порядок не важен
     return false;
 }
-
 bool Monom::operator>(const Monom& other) const {
     return other < *this;
 }
